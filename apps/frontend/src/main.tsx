@@ -1,0 +1,75 @@
+import { StrictMode } from "react";
+import { Layout } from "@/components/layout/Layout.tsx";
+import { TrpcProvider } from "@/features/TrpcProvider";
+import {
+  RootRoute,
+  Route,
+  Router,
+  RouterProvider,
+} from "@tanstack/react-router";
+import ReactDOM from "react-dom/client";
+
+import "./index.css";
+
+import { generateAppConfig } from "@/AppConfig.ts";
+import { AccountAbstractionProvider } from "@/features/aa/accountAbstractionContext.tsx";
+import { Landing } from "@/features/Landing.tsx";
+import { Payment } from "@/features/Pay.tsx";
+import { trpcClient } from "@/features/trpc-client.ts";
+import { selectInvoiceSchema } from "backend/src/db/schema.ts";
+
+// Create a root route
+export const rootRoute = new RootRoute({ component: Layout });
+
+const indexRootRoute = new Route({
+  getParentRoute: () => rootRoute,
+  path: "/",
+  component: () => {
+    return (
+      <>
+        <h1>Home</h1>
+      </>
+    );
+  },
+});
+
+// landing page route
+const landingRoute = new Route({
+  getParentRoute: () => rootRoute,
+  path: "/landing",
+  component: () => {
+    return <Landing />;
+  },
+});
+
+// payment page
+const paymentRoute = new Route({
+  getParentRoute: () => rootRoute,
+  path: "/pay/$invoiceId",
+  component: ({ useParams }) => {
+    const invoice = trpcClient["invoices"].get.useQuery(useParams().invoiceId);
+    if (invoice.isLoading || !invoice.data) return <div>Loading...</div>;
+    return <Payment invoice={selectInvoiceSchema.parse(invoice.data)} />;
+  },
+});
+
+// Create the route tree using your root and dynamically generated entity routes
+const routeTree = rootRoute.addChildren([
+  landingRoute,
+  indexRootRoute,
+  paymentRoute,
+  ...generateAppConfig({ rootRoute }),
+]);
+
+// Create the router using your route tree
+const router = new Router({ routeTree });
+
+ReactDOM.createRoot(document.getElementById("root")!).render(
+  <StrictMode>
+    <TrpcProvider>
+      <AccountAbstractionProvider>
+        <RouterProvider router={router} />
+      </AccountAbstractionProvider>
+    </TrpcProvider>
+  </StrictMode>,
+);
