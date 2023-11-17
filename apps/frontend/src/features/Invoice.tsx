@@ -8,7 +8,7 @@ export const Invoice = (props: { invoice: selectInvoiceSchema }) => {
   const Item = (props: {title: string, value: string | number, key: string | number}) => {
     return (
         <div className="flex items-center">
-          <h6 className="text-success-400 text-base min-w-[120px]">{props.title}:</h6>
+          <h6 className="text-success-400 text-base min-w-[110px]">{props.title}:</h6>
           <p className="text-base text-success-400 font-bold">{props.value}</p>
         </div>
     )

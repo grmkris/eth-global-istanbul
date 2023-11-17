@@ -5,7 +5,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
@@ -31,7 +30,7 @@ export function DataTableRowActions<TData>({
       <DropdownMenuTrigger asChild>
         <Button
           variant="ghost"
-          className="flex h-8 w-8 p-0 data-[state=open]:bg-muted"
+          className="flex h-8 w-8 p-0 data-[state=open]:bg-gray-800 outline-none"
         >
           <DotsHorizontalIcon className="h-4 w-4" />
           <span className="sr-only">Open menu</span>
@@ -41,6 +40,7 @@ export function DataTableRowActions<TData>({
         <DropdownMenuItem onClick={() => onEdit?.(row.original)}>
           Edit
         </DropdownMenuItem>
+         {/*TODO: fix this redirection */}
         <DropdownMenuItem
           onClick={() =>
             router.navigate({
@@ -50,8 +50,15 @@ export function DataTableRowActions<TData>({
         >
           View
         </DropdownMenuItem>
-        <DropdownMenuSeparator />
-        <DropdownMenuSeparator />
+        <DropdownMenuItem
+          onClick={() =>
+            router.navigate({
+              to: `/invoice/${row.original.id}`,
+            })
+          }
+        >
+          Share
+        </DropdownMenuItem>
         {/* @ts-expect-error TODO: fix this */}
         <DropdownMenuItem onClick={() => onDelete?.(row.original.id)}>
           Delete
