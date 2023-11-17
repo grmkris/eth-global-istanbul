@@ -14,7 +14,7 @@ import "./index.css";
 import { generateAppConfig } from "@/AppConfig.ts";
 import { AccountAbstractionProvider } from "@/features/aa/accountAbstractionContext.tsx";
 import { Landing } from "@/features/Landing.tsx";
-import { Payment } from "@/features/Pay.tsx";
+import { Invoice } from "@/features/Invoice.tsx";
 import { trpcClient } from "@/features/trpc-client.ts";
 import { selectInvoiceSchema } from "backend/src/db/schema.ts";
 
@@ -45,11 +45,11 @@ const landingRoute = new Route({
 // payment page
 const paymentRoute = new Route({
   getParentRoute: () => rootRoute,
-  path: "/pay/$invoiceId",
+  path: "/invoice/$invoiceId",
   component: ({ useParams }) => {
     const invoice = trpcClient["invoices"].get.useQuery(useParams().invoiceId);
     if (invoice.isLoading || !invoice.data) return <div className="bg-primary-900">Loading...</div>;
-    return <Payment invoice={selectInvoiceSchema.parse(invoice.data)} />;
+    return <Invoice invoice={selectInvoiceSchema.parse(invoice.data)} />;
   },
 });
 

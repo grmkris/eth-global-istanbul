@@ -15,6 +15,9 @@ module.exports = {
         xs: "380px",
       },
       colors: {
+        base: {
+          black: "hsl(var(--base-black))",
+        },
         dark: {
           background: "hsl(var(--dark-background))",
         },

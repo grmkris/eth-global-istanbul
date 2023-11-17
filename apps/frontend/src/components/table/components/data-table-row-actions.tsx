@@ -44,7 +44,7 @@ export function DataTableRowActions<TData>({
         <DropdownMenuItem
           onClick={() =>
             router.navigate({
-              to: `/pay/${row.original.id}`,
+              to: `/invoice/${row.original.id}`,
             })
           }
         >
