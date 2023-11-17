@@ -36,7 +36,7 @@ export const Invoice = (props: { invoice: selectInvoiceSchema }) => {
                 fgColor="#9dfc7c"
                 qrStyle="dots"
                 eyeRadius={50}
-                value={`https://metamask.app.link/send/${props.invoice.payerWallet}/transfer?address=${props.invoice.wallet}=${formatUnits(BigInt(props.invoice.amountDue), 6)}`} />
+                value={`https://metamask.app.link/send/${props.invoice.payerWallet}@05/transfer?address=${props.invoice.wallet}&uint256=${formatUnits(BigInt(props.invoice.amountDue), 6)}`} />
           </div>
         <>
           {list.map(i => {
