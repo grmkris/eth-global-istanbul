@@ -48,7 +48,7 @@ const paymentRoute = new Route({
   path: "/pay/$invoiceId",
   component: ({ useParams }) => {
     const invoice = trpcClient["invoices"].get.useQuery(useParams().invoiceId);
-    if (invoice.isLoading || !invoice.data) return <div>Loading...</div>;
+    if (invoice.isLoading || !invoice.data) return <div className="bg-primary-900">Loading...</div>;
     return <Payment invoice={selectInvoiceSchema.parse(invoice.data)} />;
   },
 });

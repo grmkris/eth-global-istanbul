@@ -23,6 +23,7 @@ export const generateAppConfig = (props: { rootRoute: RootRoute }) => {
     id: "invoices",
     selectSchema: selectInvoiceSchema.omit({
       description: true,
+      payerWallet: true,
       updatedAt: true,
     }),
     insertSchema: insertInvoiceSchema.omit({
