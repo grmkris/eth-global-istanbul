@@ -2,6 +2,10 @@ import { selectInvoiceSchema } from "backend/src/db/invoices.ts";
 import { QRCode } from 'react-qrcode-logo';
 import { formatUnits } from 'viem'
 
+function ConnectButton() {
+    return <w3m-button />
+}
+
 export const Invoice = (props: { invoice: selectInvoiceSchema }) => {
   console.log(props.invoice);
 
@@ -43,6 +47,9 @@ export const Invoice = (props: { invoice: selectInvoiceSchema }) => {
             return <Item key={Math.random()} title={i.name} value={i.value} />
           })}
         </>
+          <div className="flex justify-center mt-8">
+              <ConnectButton/>
+              </div>
       </div>
   );
 };

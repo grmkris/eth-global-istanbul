@@ -18,6 +18,7 @@ import { Invoice } from "@/features/Invoice.tsx";
 import { trpcClient } from "@/features/trpc-client.ts";
 import { selectInvoiceSchema } from "backend/src/db/schema.ts";
 
+
 // Create a root route
 export const rootRoute = new RootRoute({ component: Layout });
 
@@ -26,9 +27,9 @@ const indexRootRoute = new Route({
   path: "/",
   component: () => {
     return (
-      <>
-        <h1>Home</h1>
-      </>
+        <>
+          <h1>Home</h1>
+        </>
     );
   },
 });
@@ -64,7 +65,9 @@ const routeTree = rootRoute.addChildren([
 // Create the router using your route tree
 const router = new Router({ routeTree });
 
+
 ReactDOM.createRoot(document.getElementById("root")!).render(
+
   <StrictMode>
     <TrpcProvider>
       <AccountAbstractionProvider>

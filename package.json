@@ -21,6 +21,9 @@
     "prettier-plugin-tailwindcss": "^0.5.7"
   },
   "dependencies": {
-    "alchemy-sdk": "^3.0.0"
+    "@web3modal/wagmi": "^3.4.0-fae0d49f",
+    "alchemy-sdk": "^3.0.0",
+    "viem": "^1.19.3",
+    "wagmi": "^1.4.7"
   }
 }
