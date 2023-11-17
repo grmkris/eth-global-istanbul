@@ -19,9 +19,10 @@ export const AddItemScreen = (props: {
     },
   });
   return (
-    <div className="w-full max-w-xl rounded-lg bg-white p-4 shadow-lg">
-      <div className="mt-4 border-t pt-4"></div>
-      <AutoForm formSchema={props.itemSchema} onSubmit={addItem.mutate}>
+    <div className="w-full max-w-xl rounded-lg bg-primary-900 shadow-lg">
+      <AutoForm
+          className="text-success-400"
+          formSchema={props.itemSchema} onSubmit={addItem.mutate}>
         <AutoFormSubmit>Add {props.entityName}</AutoFormSubmit>
       </AutoForm>
     </div>
@@ -44,8 +45,7 @@ export const EditItemScreen = (props: {
     },
   });
   return (
-    <div className="w-full max-w-xl rounded-lg bg-white p-4 shadow-lg">
-      <div className="mt-4 border-t pt-4"></div>
+    <div className="w-full max-w-xl rounded-md bg-primary-900 shadow-lg">
       <AutoForm
         formSchema={props.itemSchema}
         onSubmit={(data) =>
