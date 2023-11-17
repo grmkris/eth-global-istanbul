@@ -137,9 +137,7 @@ const AccountAbstractionProvider = ({
           uxMode: "popup",
           whiteLabel: {
             name: "OpenPayment",
-          },
-          clientId:
-            "BHMxwnSSEZfZKxrO6Ib55EkuU69cMdGIa5v0eOJCwqLIyqHSjue40dTGDwDYX3RhA_yszky1GdaXwLwXP5gTO1Q",
+          }
         },
       });
 
