@@ -6,16 +6,19 @@ import {db} from "../db/db";
 import {Address, createPublicClient, http} from "viem";
 import {goerli} from "viem/chains";
 import {invoices} from "../db/invoices";
-import {insertPaymentSchema, payments, selectPaymentSchema} from "../db/payments";
+import {payments, selectPaymentSchema} from "../db/payments";
 import {eq} from "drizzle-orm";
 import erc20ABI from "./erc20Abi.json";
-const viemPublic = createPublicClient({
+
+
+
+export const viemPublic = createPublicClient({
     chain: goerli,
     transport: http()
 })
 
 
-const usdcContractAddress = '0x30A01fe57Fe433D17DD168EAF80Bd91f2719f7D9' // GOERLI https://faucet.allianceblock.io/
+export const usdcContractAddress = '0x30A01fe57Fe433D17DD168EAF80Bd91f2719f7D9' // GOERLI https://faucet.allianceblock.io/
 export async function checkInvoices() {
     console.log("Checking invoices")
     const unpaidInvoices = await db.query.invoices.findMany({

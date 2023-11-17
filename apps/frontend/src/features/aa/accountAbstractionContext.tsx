@@ -18,6 +18,7 @@ import { CHAIN_NAMESPACES, WALLET_ADAPTERS } from "@web3auth/base";
 import { Web3AuthOptions } from "@web3auth/modal";
 import { OpenloginAdapter } from "@web3auth/openlogin-adapter";
 import { ethers, utils } from "ethers";
+import {useLocalStorage} from "usehooks-ts";
 
 type accountAbstractionContextValue = {
   ownerAddress?: string;
@@ -70,7 +71,7 @@ const AccountAbstractionProvider = ({
   children: JSX.Element;
 }) => {
   // owner address from the email  (provided by web3Auth)
-  const [ownerAddress, setOwnerAddress] = useState<string | undefined>();
+  const [ownerAddress, setOwnerAddress] = useLocalStorage<string | undefined>("ownerAddress", undefined)
 
   // safes owned by the user
   const [safes, setSafes] = useState<string[]>([]);
@@ -87,14 +88,14 @@ const AccountAbstractionProvider = ({
   const isAuthenticated = !!ownerAddress && !!chainId;
   const chain = getChain(chainId) || initialChain;
 
-  // reset React state when you switch the chain
-  useEffect(() => {
-    setOwnerAddress(undefined);
-    setSafes([]);
-    setChainId(chain.id);
-    setWeb3Provider(undefined);
-    setSafeSelected(undefined);
-  }, [chain]);
+  // // reset React state when you switch the chain
+  // useEffect(() => {
+  //   setOwnerAddress(undefined);
+  //   setSafes([]);
+  //   setChainId(chain.id);
+  //   setWeb3Provider(undefined);
+  //   setSafeSelected(undefined);
+  // }, [chain]);
 
   // authClient
   const [web3AuthModalPack, setWeb3AuthModalPack] =
@@ -185,7 +186,8 @@ const AccountAbstractionProvider = ({
   };
 
   // current safe selected by the user
-  const [safeSelected, setSafeSelected] = useState<string | undefined>(
+  const [safeSelected, setSafeSelected] = useLocalStorage<string | undefined>(
+    "safeSelected",
     undefined,
   );
 
@@ -234,6 +236,8 @@ const AccountAbstractionProvider = ({
       const safeAccountAbstraction = new AccountAbstraction(signer);
 
       await safeAccountAbstraction.init({ relayPack });
+
+      if (!safeSelected) throw new Error("safeSelected is undefined");
 
       // we use a dump safe transfer as a demo transaction
       const dumpSafeTransafer: MetaTransactionData[] = [

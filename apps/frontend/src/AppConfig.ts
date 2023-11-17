@@ -38,9 +38,6 @@ export const generateAppConfig = (props: { rootRoute: RootRoute }) => {
       createdAt: {
         enableSorting: true,
       },
-      wallet: {
-        enableSorting: true,
-      },
     },
   });
 

@@ -2,6 +2,10 @@ import { cn } from "@/components/utils.ts";
 import { useAccountAbstraction } from "@/features/aa/accountAbstractionContext.tsx";
 import { Outlet, useRouter } from "@tanstack/react-router";
 import { SettingsIcon } from "lucide-react";
+import {useQuery} from "@tanstack/react-query";
+import {Address, createPublicClient, formatUnits, http} from "viem";
+import erc20ABI from "backend/src/payment-checker/erc20Abi.json";
+import {goerli} from "viem/chains";
 
 function toUppercaseFirst(str: string) {
   return str.charAt(0).toUpperCase() + str.slice(1);
@@ -79,11 +83,49 @@ export const Layout = () => {
 
 const WalletInfoBanner = () => {
   const { ownerAddress, safeSelected, safeBalance } = useAccountAbstraction();
+
+  const balance = useQuery({
+    enabled: !!safeSelected,
+    queryKey: ["balance", safeSelected],
+    queryFn: async () => {
+      if (!safeSelected) throw new Error("No safe selected");
+      const res = getWalletBalance({
+        wallet: safeSelected,
+        erc20: usdcContractAddress
+      });
+      return res;
+    },
+    refetchInterval: 5000,
+  });
+
   return (
       <div className="flex flex-col gap-4 p-6 border-success-400 bg-primary-900 rounded-xl border shadow-sm w-full">
         <h1 className="text-lg font-bold text-success-400">Your safe: {safeSelected} </h1>
         <p className="text-sm font-bold text-success-400">Owner: {ownerAddress}</p>
-        <p className="text-sm font-bold text-success-400">Balance: {safeBalance}</p>
+        {balance.data ? <p className="text-sm font-bold text-success-400">Balance: {formatUnits(BigInt(String(balance.data)), 6)}</p> : null}
       </div>
   );
 };
+
+
+export const viemPublic = createPublicClient({
+  chain: goerli,
+  transport: http()
+})
+
+
+
+export const getWalletBalance = async (props: {
+  wallet: string, erc20: Address
+}) => {
+
+  const balance = await viemPublic.readContract({
+    address: props.erc20,
+    abi: erc20ABI,
+    functionName: 'balanceOf',
+    args: [props.wallet]
+  })
+  return balance
+}
+
+export const usdcContractAddress = '0x30A01fe57Fe433D17DD168EAF80Bd91f2719f7D9' // GOERLI https://faucet.allianceblock.io/

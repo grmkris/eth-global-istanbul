@@ -3,6 +3,7 @@ import { trpcClient } from "@/features/trpc-client.ts";
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { z } from "zod";
+import {useAccountAbstraction} from "@/features/aa/accountAbstractionContext.tsx";
 
 export const AddItemScreen = (props: {
   entityName: "invoices" | "payments" | "accepted_tokens";
@@ -18,11 +19,28 @@ export const AddItemScreen = (props: {
       props.onAdd?.();
     },
   });
+  const {safeSelected} = useAccountAbstraction()
+
+  if (props.entityName === 'invoices') {
+    return (
+        <div className="w-full max-w-xl rounded-lg bg-primary-900 shadow-lg">
+          <AutoForm
+              className="text-success-400"
+              formSchema={props.itemSchema} onSubmit={addItem.mutate}
+              values={{wallet: safeSelected, status: 'pending'}}>
+            <AutoFormSubmit>Add {props.entityName}</AutoFormSubmit>
+          </AutoForm>
+        </div>
+    );
+  }
+
   return (
     <div className="w-full max-w-xl rounded-lg bg-primary-900 shadow-lg">
       <AutoForm
           className="text-success-400"
-          formSchema={props.itemSchema} onSubmit={addItem.mutate}>
+          formSchema={props.itemSchema} onSubmit={addItem.mutate}
+          values={{status: 'pending'}}
+      >
         <AutoFormSubmit>Add {props.entityName}</AutoFormSubmit>
       </AutoForm>
     </div>
