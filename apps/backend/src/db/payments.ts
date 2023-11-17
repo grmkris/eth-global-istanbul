@@ -14,7 +14,7 @@ export const payments = sqliteTable("payments", {
   paymentDate: integer("payment_date", { mode: "timestamp" }).notNull(),
   paymentMethod: text("payment_method").notNull(), // e.g., 'wallet', 'credit_card'
   transactionId: text("transaction_id"), // For blockchain or other payment gateway transaction references
-  createdAt: integer("created_at", { mode: "timestamp" }).defaultNow(),
+  createdAt: integer("created_at", { mode: "timestamp" }),
 });
 
 export const insertPaymentSchema = createInsertSchema(payments, {
@@ -32,3 +32,7 @@ export const paymentsRelations = relations(payments, ({ one }) => ({
     references: [invoices.id],
   }),
 }));
+
+
+export type insertPaymentSchema = z.infer<typeof insertPaymentSchema>;
+export type selectPaymentSchema = z.infer<typeof selectPaymentSchema>;

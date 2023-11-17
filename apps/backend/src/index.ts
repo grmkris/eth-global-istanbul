@@ -7,6 +7,8 @@ import { renderTrpcPanel } from "trpc-panel";
 
 import { db } from "./db/db";
 import { elysiaRouter } from "./router";
+import cron from "@elysiajs/cron";
+import {checkInvoices} from "./payment-checker/paymentChecker";
 
 const app = new Elysia()
   .use(cors({ origin: "localhost:5173" }))
@@ -20,6 +22,15 @@ const app = new Elysia()
   .onStart(async () => {
     migrate(db, { migrationsFolder: "./drizzle" });
   })
+    .use(
+    cron({
+    name: 'heartbeat',
+    pattern: '*/20 * * * * *',
+            run() {
+         checkInvoices()
+    }
+        }
+    ))
   .listen(8080);
 
 console.log(
