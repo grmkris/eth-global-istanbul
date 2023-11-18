@@ -34,7 +34,7 @@ export const InvoicePaid = (props: {
             <p className="text-md text-success-400">Invoice <a className="underline"
                                                                href={ `/invoice/${ props.invoice.id }` }>{ props.invoice.id }</a> has
               been paid</p>
-            <Web3Inbox/>
+            <Web3Inbox invoiceId={ props.invoice.id }/>
           </div>
         </div>
       </>

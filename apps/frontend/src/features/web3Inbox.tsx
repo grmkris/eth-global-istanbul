@@ -30,6 +30,7 @@ export const MessageSchema = z.object({
 export function Web3Inbox(props: {
     invoiceId: string
 }) {
+    console.log("Web3Inbox", props.invoiceId)
     const { address } = useAccount()
     const [isRegisteredINEffect, setIsRegisteredINEffect] = useState(false)
     const { signMessageAsync } = useSignMessage()
@@ -84,11 +85,13 @@ export function Web3Inbox(props: {
         const parsed = MessageSchema.parse(message)
         return parsed
     }).filter((message) => {
-        return message.message.orderId === props.invoiceId
+        console.log("inside filter", {
+            message,
+            props,
+            id: message.message.url.split('/').pop()
+        })
+        return message.message.url.split('/').pop() === props.invoiceId
     })
-
-    console.log("helloweb3inbox", {
-        isReady, isSubscribed})
 
 
     if (!isReady) return <div className="text-center text-gray-400 my-5">Loading notifications...</div>
@@ -138,7 +141,7 @@ export function Web3Inbox(props: {
                                             {filteredMessages[0] ?
                                                 <>
                                                     <h1> Messages:</h1>
-                                                    <div>{JSON.stringify(filteredMessages[0])}</div>
+                                                    <div>{JSON.stringify(filteredMessages[0].message)}</div>
                                                 </>
                                                 : <div>No messages from seller</div>
                                             }
