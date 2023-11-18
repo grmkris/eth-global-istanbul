@@ -12,6 +12,7 @@
     "preview": "vite preview --host 0.0.0.0"
   },
   "dependencies": {
+    "@gatefi/js-sdk": "^0.14.0",
     "@hookform/resolvers": "^3.3.2",
     "@monerium/sdk": "^2.7.2",
     "@radix-ui/react-accordion": "^1.1.2",
