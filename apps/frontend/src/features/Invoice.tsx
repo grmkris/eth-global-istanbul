@@ -70,11 +70,11 @@ const handleOnClick = () => {
       email: props.invoice?.payerEmail ?? "dein@joni.com",
       externalId: props.invoice.id,
       defaultFiat: {
-        currency: props.invoice.currency ?? "EUR",
-        amount: props.invoice?.amountDue.toString() ?? "0",
+        currency: props.invoice.currency ?? "USD",
+        amount: props.invoice?.amountDue.toString() ?? "10",
       },
       defaultCrypto: {
-        currency: props.invoice.currency ?? "USDC"
+        currency: "USDC"
       },
       availableFiat: [
         "USD",
