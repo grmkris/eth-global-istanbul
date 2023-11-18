@@ -7,7 +7,7 @@ import {useAccount, useContractWrite, usePrepareContractWrite, useWalletClient, 
 import {Button} from "@/components/ui/button.tsx";
 import {Copy, CornerUpLeft} from "lucide-react";
 import {Checkbox} from "@/components/ui/checkbox.tsx";
-import {useEffect, useRef, useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import { type PublicClient, usePublicClient } from 'wagmi'
 import { providers } from 'ethers'
 import { type HttpTransport } from 'viem'
