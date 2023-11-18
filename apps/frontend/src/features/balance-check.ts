@@ -29,7 +29,7 @@ export const getWalletBalance = async (props: {
         functionName: 'balanceOf',
         args: [props.wallet]
     })
-    return balance
+    return balance ? balance.toString() : '0'
 }
 
-export const usdcContractAddress = '0x30A01fe57Fe433D17DD168EAF80Bd91f2719f7D9' // GOERLI https://faucet.allianceblock.io/
+export const usdcContractAddress = '0x07865c6e87b9f70255377e024ace6630c1eaa37f' // GOERLI https://faucet.allianceblock.io/
