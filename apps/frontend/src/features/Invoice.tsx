@@ -10,12 +10,31 @@ import { Checkbox } from "@/components/ui/checkbox.tsx";
 import { useEffect, useRef, useState } from "react";
 import { GateFiSDK, GateFiDisplayModeEnum } from "@gatefi/js-sdk";
 import { Skeleton } from "@/components/ui/skeleton.tsx";
+import { MetadataApi, stringifyDeterministic } from '@cowprotocol/app-data'
+// Sorry, it's a magic, we should import it to make MetadataApi work
+import { keccak256, toUtf8Bytes } from 'ethers/lib/utils'
+import { OrderClass, OrderQuoteRequest, SigningScheme, SigningResult, OrderBookApi, OrderQuoteSideKindBuy, OrderSigningUtils, SupportedChainId, OrderParameters, UnsignedOrder, OrderKind, OrderCreation } from '@cowprotocol/cow-sdk'
+import { log } from "console";
+import { Web3Provider } from '@ethersproject/providers'
+
+const chainId = SupportedChainId.GOERLI
+const provider = new Web3Provider(window.ethereum)
+const signer = provider.getSigner()
+
+export const metadataApi = new MetadataApi()
+const appCode = 'LoomPay'
+const environment = 'hackathon'
+const referrer = { address: `0x40D73aa5cA202c7c751F71E158BdAb30Eab7347D` }
+
+const quote = { slippageBips: '0.5' } // Slippage percent, it's 0 to 100
+const orderClass = OrderClass.MARKET  // "market" | "limit" | "liquidity"
 import { usePrepareContractWrite } from "wagmi";
 import erc20ABI from "backend/src/payment-checker/erc20Abi.json";
 import { useRouter } from "@tanstack/react-router";
 import {Web3Inbox} from "@/features/web3Inbox.tsx";
 
 function ConnectButton() {
+
   return <w3m-button/>
 }
 
@@ -63,6 +82,89 @@ export const Invoice = (props: { invoice: selectInvoiceSchema }) => {
       overlayInstanceSDK.current = null;
     };
   }, []);
+
+  const handleOnClickCow = async () => {
+    if (account.address == null) {
+        console.error("no payerWallet set")
+        return "no payerWallet set"
+    }
+    const orderBookApi = new OrderBookApi({ chainId: chainId })
+
+    const appDataDoc = await metadataApi.generateAppDataDoc({
+        appCode,
+        environment,
+        metadata: {
+            referrer,
+            quote,
+        },
+    })
+
+    const { appDataHex } = await metadataApi.appDataToCid(appDataDoc)
+
+    const quoteRequest:OrderQuoteRequest = {
+        sellToken: '0x91056D4A53E1faa1A84306D4deAEc71085394bC8', // COW goerli - 18 decimals
+        buyToken: '0x07865c6E87B9F70255377e024ace6630C1Eaa37F', // USDC goerli - 6 decimals
+        from: account.address,
+        receiver: props.invoice.wallet,
+        buyAmountAfterFee: (props.invoice.amountDue * 10 ** 6).toString(), // USDC
+        kind: OrderQuoteSideKindBuy.BUY,
+        appData: await stringifyDeterministic(appDataDoc),
+        appDataHash: appDataHex,
+    }
+    const quoteResponse = await orderBookApi.getQuote(quoteRequest);
+
+    if (quoteRequest.receiver == null) {
+        console.log("receiver is null")
+        return "receiver is null"
+    }
+    if (quoteRequest.appDataHash == null) {
+        console.log("appDataHash is null")
+        return "appDataHash is null"
+    }
+
+    const usignedOrder:UnsignedOrder = {
+        sellToken: quoteRequest.sellToken,
+        buyToken: quoteRequest.buyToken,
+        receiver: quoteRequest.receiver,
+        appData: quoteRequest.appDataHash,
+        kind: OrderKind.BUY,
+        validTo: quoteResponse.quote.validTo,
+        sellAmount: quoteResponse.quote.sellAmount,
+        buyAmount: quoteResponse.quote.buyAmount,
+        feeAmount: quoteResponse.quote.feeAmount,
+        partiallyFillable: quoteResponse.quote.partiallyFillable,
+    }
+    const orderSigningResult = await OrderSigningUtils.signOrder(
+        usignedOrder,
+        chainId,
+        signer
+    );
+
+    if (quoteRequest.appData == null) {
+        console.log("appData is null")
+        return "appData is null"
+    }
+
+    const orderCreation:OrderCreation = {
+        sellToken: quoteRequest.sellToken,
+        buyToken: quoteRequest.buyToken,
+        kind: OrderKind.BUY,
+        signingScheme: SigningScheme.EIP712,
+        signature: orderSigningResult.signature,
+        appData: quoteRequest.appData,
+        appDataHash: quoteRequest.appDataHash,
+        from: quoteRequest.from,
+        receiver: quoteRequest.receiver,
+        sellAmount: quoteResponse.quote.sellAmount,
+        buyAmount: quoteResponse.quote.buyAmount,
+        validTo: quoteResponse.quote.validTo,
+        feeAmount: quoteResponse.quote.feeAmount,
+        partiallyFillable: quoteResponse.quote.partiallyFillable,
+    }
+    const orderId = await orderBookApi.sendOrder(orderCreation);
+    const order = await orderBookApi.getOrder(orderId);
+    console.log("Order", JSON.stringify(order, null, 2))
+  }
 
   const handleOnClick = () => {
     if ( overlayInstanceSDK.current ) {
@@ -154,6 +256,9 @@ export const Invoice = (props: { invoice: selectInvoiceSchema }) => {
                   <ConnectButton/>
                   <Button variant="dark" id="unlimit-overlay" className="text-success-400 bg-base-black" onClick={() => handleOnClick()}>
                       Fiat Button
+                  </Button>
+                  <Button variant="dark" className="text-success-400 bg-base-black" onClick={() => handleOnClickCow()}>
+                      Cow Button
                   </Button>
                   {props.invoice.status === "pending" && (
                       <Button
