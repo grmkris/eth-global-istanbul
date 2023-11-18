@@ -17,6 +17,7 @@ import { Landing } from "@/features/Landing.tsx";
 import { Invoice } from "@/features/Invoice.tsx";
 import { trpcClient } from "@/features/trpc-client.ts";
 import { selectInvoiceSchema } from "backend/src/db/schema.ts";
+import {InvoiceDetails} from "@/features/InvoiceDetails.tsx";
 
 // Create a root route
 export const rootRoute = new RootRoute({ component: Layout });
@@ -53,10 +54,22 @@ const paymentRoute = new Route({
   },
 });
 
+// payment page
+const invoiceDetailsRoute = new Route({
+  getParentRoute: () => rootRoute,
+  path: "/invoice-details/$invoiceId",
+  component: ({ useParams }) => {
+    const invoice = trpcClient["invoices"].get.useQuery(useParams().invoiceId);
+    if (invoice.isLoading || !invoice.data) return <div className="bg-primary-900">Loading...</div>;
+    return <InvoiceDetails invoice={selectInvoiceSchema.parse(invoice.data)} />;
+  },
+});
+
 // Create the route tree using your root and dynamically generated entity routes
 const routeTree = rootRoute.addChildren([
   landingRoute,
   indexRootRoute,
+  invoiceDetailsRoute,
   paymentRoute,
   ...generateAppConfig({ rootRoute }),
 ]);
