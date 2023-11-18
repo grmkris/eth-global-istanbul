@@ -17,8 +17,9 @@ export function generateColumnsFromZodSchema<
   config: TableConfig<TSchema>,
   actions?: {
     onEdit?: (input: TData) => void;
-    onDelete?: (id: number) => void;
-    onSelect?: (id: number) => void;
+    onDelete?: (id: string) => void;
+    onSelect?: (id: string) => void;
+    onHandled?: (id: string) => void;
   },
 ): ColumnDef<TData>[] {
   // Function implementation
@@ -78,6 +79,7 @@ export function generateColumnsFromZodSchema<
           row={row}
           onDelete={actions.onDelete}
           onEdit={actions.onEdit}
+          onHandled={actions.onHandled}
         />
       ),
       enableSorting: false,

@@ -149,6 +149,12 @@ export function generateEntityRouter<
               to: `/${entityRoute.id}/${input.id}/edit`,
             });
           },
+          onHandled: async (id) => {
+            if (entityRoute.id === "invoices") {
+              await trpc.markInvoiceHandled.mutate(id);
+              await queryClient.invalidateQueries();
+            }
+          }
         },
       );
       console.log("columns", {

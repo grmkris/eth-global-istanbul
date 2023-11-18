@@ -12,6 +12,7 @@ import { useEffect, useRef, useState } from "react";
 import { GateFiSDK, GateFiDisplayModeEnum } from "@gatefi/js-sdk";
 import { trpcClient } from "@/features/trpc-client.ts";
 import { Skeleton } from "@/components/ui/skeleton.tsx";
+import {Web3Inbox} from "@/features/web3Inbox.tsx";
 
 function ConnectButton() {
   return <w3m-button/>
@@ -144,7 +145,12 @@ export const Invoice = (props: { invoice: selectInvoiceSchema }) => {
                       Fiat Button
                   </Button>
               </div>
+              <div className="flex items-start justify-between mt-8text-success-400">
+                  <Web3Inbox/>
+              </div>
           </div>
+
+
       </>
 
   );
@@ -169,7 +175,7 @@ export const Web3Connect = () => {
                          src={ i?.token.icon } alt=""/>
                   </div>
                   <p className="text-success-400">{ i?.token.name }</p>
-                  <p className="text-success-400">{ Number(formatUnits(BigInt(i?.balance), i?.token.name === "USDC" ? 6 : 18)).toLocaleString() }</p>
+                  <p className="text-success-400">{ Number(formatUnits(BigInt(i?.balance ?? 0), i?.token.name === "USDC" ? 6 : 18)).toLocaleString() }</p>
                 </div>
             )
           }) }
@@ -201,7 +207,7 @@ export const useGetBalances = (props: {
       const data = await Promise.all(balances);
 
       // filter out empty balances
-      return data.filter(balance => balance?.balance !== BigInt(0));
+      return data.filter(balance => BigInt(balance?.balance ?? 0) !== BigInt(0));
     },
   });
 }
