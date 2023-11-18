@@ -19,6 +19,10 @@ export const Header = () => {
   useEffect(() => {
     if (ownerAddress) {
       router.navigate({
+        to: "/invoices",
+      });
+    } else{
+      router.navigate({
         to: "/",
       });
     }

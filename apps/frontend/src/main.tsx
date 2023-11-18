@@ -14,9 +14,12 @@ import "./index.css";
 import { generateAppConfig } from "@/AppConfig.ts";
 import { AccountAbstractionProvider } from "@/features/aa/accountAbstractionContext.tsx";
 import { Landing } from "@/features/Landing.tsx";
-import { Payment } from "@/features/Pay.tsx";
+import { Invoice } from "@/features/Invoice.tsx";
 import { trpcClient } from "@/features/trpc-client.ts";
 import { selectInvoiceSchema } from "backend/src/db/schema.ts";
+import { InvoiceDetails } from "@/features/InvoiceDetails.tsx";
+import { InvoicePaid } from "@/features/invoice-paid.tsx";
+
 
 import { SigningScheme, SigningResult, OrderBookApi, OrderQuoteSideKindBuy, OrderSigningUtils, SupportedChainId, OrderParameters, UnsignedOrder, OrderKind, OrderCreation } from '@cowprotocol/cow-sdk'
 import { Web3Provider } from '@ethersproject/providers'
@@ -163,19 +166,6 @@ const indexRootRoute = new Route({
   getParentRoute: () => rootRoute,
   path: "/",
   component: () => {
-    return (
-      <>
-        <h1>Home</h1>
-      </>
-    );
-  },
-});
-
-// landing page route
-const landingRoute = new Route({
-  getParentRoute: () => rootRoute,
-  path: "/landing",
-  component: () => {
     return <Landing />;
   },
 });
@@ -192,27 +182,52 @@ const CowPocRoute = new Route({
 // payment page
 const paymentRoute = new Route({
   getParentRoute: () => rootRoute,
-  path: "/pay/$invoiceId",
+  path: "/invoice/$invoiceId",
   component: ({ useParams }) => {
     const invoice = trpcClient["invoices"].get.useQuery(useParams().invoiceId);
     if (invoice.isLoading || !invoice.data) return <div className="bg-primary-900">Loading...</div>;
-    return <Payment invoice={selectInvoiceSchema.parse(invoice.data)} />;
+    return <Invoice invoice={selectInvoiceSchema.parse(invoice.data)} />;
+  },
+});
+
+// payment page
+const invoiceDetailsRoute = new Route({
+  getParentRoute: () => rootRoute,
+  path: "/invoice-details/$invoiceId",
+  component: ({ useParams }) => {
+    const invoice = trpcClient["invoices"].get.useQuery(useParams().invoiceId);
+    if (invoice.isLoading || !invoice.data) return <div className="bg-primary-900">Loading...</div>;
+    return <InvoiceDetails invoice={selectInvoiceSchema.parse(invoice.data)} />;
+  },
+});
+
+// invoice paid page
+const invoicePaidRoute = new Route({
+  getParentRoute: () => rootRoute,
+  path: "/invoice-paid/$invoiceId",
+  component: ({ useParams }) => {
+    const invoice = trpcClient["invoices"].get.useQuery(useParams().invoiceId);
+    if (invoice.isLoading || !invoice.data) return <div className="bg-primary-900">Loading...</div>;
+    return <InvoicePaid invoice={selectInvoiceSchema.parse(invoice.data)} />;
   },
 });
 
 // Create the route tree using your root and dynamically generated entity routes
 const routeTree = rootRoute.addChildren([
-  landingRoute,
   CowPocRoute,
   indexRootRoute,
+  invoiceDetailsRoute,
   paymentRoute,
+  invoicePaidRoute,
   ...generateAppConfig({ rootRoute }),
 ]);
 
 // Create the router using your route tree
 const router = new Router({ routeTree });
 
+
 ReactDOM.createRoot(document.getElementById("root")!).render(
+
   <StrictMode>
     <TrpcProvider>
       <AccountAbstractionProvider>

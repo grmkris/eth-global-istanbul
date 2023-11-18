@@ -34,6 +34,8 @@
 
     --radius: 0.5rem;
 
+    --base-black: #000000;
+
     --primary-300: #a6faff;
     --primary-400: #79f7ff;
     --primary-900: #1b1b1c;
@@ -96,3 +98,20 @@
 .rdp-vhidden {
   @apply hidden;
 }
+
+*::-webkit-scrollbar {
+  width: 2px;
+  height: 2px;
+}
+
+*::-webkit-scrollbar-track {
+  border-radius: 50px;
+  background-color: #1b1b1c;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: #9dfc7c;
+  border-radius: 14px;
+  height: 2px;
+}
+

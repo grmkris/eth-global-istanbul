@@ -105,7 +105,7 @@ const AccountAbstractionProvider = ({
     (async () => {
       const options: Web3AuthOptions = {
         clientId:
-          "BHMxwnSSEZfZKxrO6Ib55EkuU69cMdGIa5v0eOJCwqLIyqHSjue40dTGDwDYX3RhA_yszky1GdaXwLwXP5gTO1Q",
+          "BBp3RotFeNXkqkpMuZJ1bXkKfTRod-d99VS--8Qd8FghbhkDNvNE1EVq9NqbSv3GpXgMcys4k6LWb2jKPKsnT6I",
         web3AuthNetwork: "testnet",
         chainConfig: {
           chainNamespace: CHAIN_NAMESPACES.EIP155,
@@ -138,7 +138,8 @@ const AccountAbstractionProvider = ({
           uxMode: "popup",
           whiteLabel: {
             name: "OpenPayment",
-          }
+          },
+          network: 'testnet'
         },
       });
 
@@ -276,7 +277,7 @@ const AccountAbstractionProvider = ({
     queryFn: async () => {
       if (!safeSelected) throw new Error("safeSelected is undefined");
       const balance = await web3Provider?.getBalance(safeSelected);
-      return balance?.toString();
+      return balance?.toString() ?? "0";
     },
   });
 
