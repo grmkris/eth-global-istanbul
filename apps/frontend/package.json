@@ -62,7 +62,7 @@
     "viem": "^1.19.3",
     "vite-tsconfig-paths": "^4.2.1",
     "zod": "^3.22.4",
-    "@cowprotocol/app-data": "^1.2.0",
+    "@cowprotocol/app-data": "^1.2.1",
     "@cowprotocol/cow-sdk": "^4.0.3",
     "wagmi": "^1.4.7"
   },
