@@ -8,9 +8,27 @@ import {
 import { useCallback, useEffect } from 'react'
 import { useSignMessage, useAccount } from 'wagmi'
 import {Button} from "@/components/ui/button.tsx";
-import {toast} from "react-toastify";
+import {z} from "zod";
 
-export function Web3Inbox() {
+export const MessageSchema = z.object({
+    id: z.number(),
+    topic: z.string(),
+    message: z.object({
+        id: z.string(),
+        type: z.string(),
+        title: z.string(),
+        body: z.string(),
+        icon: z.string(),
+        orderId: z.string().optional(),
+        url: z.string()
+    }),
+    publishedAt: z.number()
+})
+
+
+export function Web3Inbox(props: {
+    orderId: string
+}) {
     const { address } = useAccount()
     const { signMessageAsync } = useSignMessage()
 
@@ -39,7 +57,7 @@ export function Web3Inbox() {
         try {
             await register(message => signMessageAsync({ message }))
         } catch (registerIdentityError) {
-            toast.error(registerIdentityError)
+            alert(registerIdentityError)
         }
     }, [signMessageAsync, register, address])
 
@@ -59,19 +77,25 @@ export function Web3Inbox() {
     const { subscription } = useSubscription()
     const { messages } = useMessages()
 
+    const filteredMessages = messages.map((message) => {
+        const parsed = MessageSchema.parse(message)
+        return parsed
+    }).filter((message) => {
+        return message.message.orderId === props.orderId
+    })
+
     console.log("helloweb3inbox", {
         isReady, isSubscribed})
 
 
     if (!isReady) return <div>Loading notifications...</div>
 
-    if (!isSubscribed) return <div className="flex flex-col justify-center items-center w-full">
-            <p className="text-center text-gray-400 mt-5">Not subscribed</p>
-            <div className="mt-2">
-                <Button variant="ghost" className="text-black bg-success-400" onClick={performSubscribe} disabled={isSubscribing}>
+    if (!isSubscribed) return <div>Not subscribed
+            <>
+                <Button onClick={performSubscribe} disabled={isSubscribing}>
                     {isSubscribing ? 'Subscribing...' : 'Subscribe to notifications'}
                 </Button>
-            </div>
+            </>
     </div>
 
     return (
@@ -97,16 +121,20 @@ export function Web3Inbox() {
                                 <>
                                     {!isSubscribed ? (
                                         <>
-                                            <Button variant="ghost" className="text-black bg-success-400" onClick={performSubscribe} disabled={isSubscribing}>
+                                            <Button onClick={performSubscribe} disabled={isSubscribing}>
                                                 {isSubscribing ? 'Subscribing...' : 'Subscribe to notifications'}
                                             </Button>
                                         </>
                                     ) : (
                                         <>
                                             <div>You are subscribed</div>
-                                            <div>Subscription: {JSON.stringify(subscription)}</div>
-                                            <h1> Messages:</h1>
-                                            <div>{JSON.stringify(messages)}</div>
+                                            {filteredMessages[0] ?
+                                                <>
+                                                    <h1> Messages:</h1>
+                                                    <div>{JSON.stringify(filteredMessages[0])}</div>
+                                                </>
+                                                : <div>No messages from seller</div>
+                                            }
                                         </>
                                     )}
                                 </>
