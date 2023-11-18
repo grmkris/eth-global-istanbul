@@ -9,7 +9,7 @@ export const Landing = () => {
           height={500}
           width={500}
           className="rounded-xl"
-          src="/images/eth.png"
+          src="/images/landing.png"
           alt=""
         />
         <div className="text-success-400 min-w-[700px] p-4 text-xl">
