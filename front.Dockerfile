@@ -23,4 +23,4 @@ COPY --from=base /usr/src/app .
 # Setup environment and run the service
 ENV NODE_ENV=production
 EXPOSE 5173/tcp
-ENTRYPOINT [ "npm", "run", "dev:frontend" ]
+ENTRYPOINT [ "npm", "run", "dev:frontend", "--host"]
