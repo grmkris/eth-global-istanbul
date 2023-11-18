@@ -12,7 +12,9 @@ function toUppercaseFirst(str: string) {
 
 export const Layout = () => {
   const router = useRouter();
+
   // const { ownerAddress } = useAccountAbstraction();
+  // console.log("router", router.route.pathname)
 
   if ( router.state.location.pathname === "/" || router.state.location.pathname.includes("/invoice/") || router.state.location.pathname.includes("/invoice-paid/")) {
     return <Outlet/>;
@@ -41,7 +43,7 @@ export const Layout = () => {
                           <a // TODO start using router and link
                               href={ `/${ item }` }
                               className={ cn(
-                                  "hover:border-success-400 border-primary-900 border transition-all duration-300 ease-in-out hover:text-opacity-5",
+                                  `hover:border-success-400 border-primary-900 border transition-all duration-300 ease-in-out hover:text-opacity-5 ${router.state.location.pathname === `/${item}` ? "bg-gray-800" : ""}`,
                                   "text-success-400 group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6",
                               ) }
                           >
