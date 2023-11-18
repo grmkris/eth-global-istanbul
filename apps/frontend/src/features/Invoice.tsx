@@ -3,11 +3,11 @@ import {QRCode} from 'react-qrcode-logo';
 import {Address, formatUnits, parseUnits} from 'viem'
 import {useQuery} from "@tanstack/react-query";
 import {ENABLED_TOKENS_GOERLI, getWalletBalance} from "@/features/balance-check.ts";
-import {useAccount, useContractWrite, usePrepareContractWrite} from "wagmi";
+import {useAccount, useContractWrite, usePrepareContractWrite, useWalletClient, WalletClient} from "wagmi";
 import {Button} from "@/components/ui/button.tsx";
 import {Copy, CornerUpLeft} from "lucide-react";
 import {Checkbox} from "@/components/ui/checkbox.tsx";
-import {useEffect, useRef, useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import {GateFiDisplayModeEnum, GateFiSDK} from "@gatefi/js-sdk";
 import {Skeleton} from "@/components/ui/skeleton.tsx";
 import {MetadataApi, stringifyDeterministic} from '@cowprotocol/app-data'
@@ -31,8 +31,27 @@ import {Web3Inbox} from "@/features/web3Inbox.tsx";
 import {toast} from "react-toastify";
 
 const chainId = SupportedChainId.GOERLI
-const provider = new Web3Provider(window.ethereum)
-const signer = provider.getSigner()
+
+
+export function walletClientToSigner(walletClient: WalletClient) {
+    const { account, chain, transport } = walletClient
+    const network = {
+        chainId: chain.id,
+        name: chain.name,
+        ensAddress: chain.contracts?.ensRegistry?.address,
+    }
+    const provider = new Web3Provider(transport, network)
+    return provider.getSigner(account.address)
+}
+
+/** Hook to convert a viem Wallet Client to an ethers.js Signer. */
+export function useEthersSigner({ chainId }: { chainId?: number } = {}) {
+    const { data: walletClient } = useWalletClient({ chainId })
+    return React.useMemo(
+        () => (walletClient ? walletClientToSigner(walletClient) : undefined),
+        [walletClient],
+    )
+}
 
 export const metadataApi = new MetadataApi()
 const appCode = 'LoomPay'
@@ -61,7 +80,8 @@ export const Invoice = (props: { invoice: selectInvoiceSchema }) => {
   const account = useAccount()
   const balances = useGetBalances({address: account.address});
   const [selectedOption, setSelectedOption] = useState('')
-    const [selectedToken, setSelectedToken] = useState()
+  const [selectedToken, setSelectedToken] = useState()
+  const signer = useEthersSigner()
 
     const { config } = usePrepareContractWrite({
         address: balances.data?.find(i => i?.token.name === selectedOption)?.token.address as Address,
