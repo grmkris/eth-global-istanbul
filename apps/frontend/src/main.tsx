@@ -20,9 +20,12 @@ import { selectInvoiceSchema } from "backend/src/db/schema.ts";
 
 import { SigningScheme, SigningResult, OrderBookApi, OrderQuoteSideKindBuy, OrderSigningUtils, SupportedChainId, OrderParameters, UnsignedOrder, OrderKind, OrderCreation } from '@cowprotocol/cow-sdk'
 import { Web3Provider } from '@ethersproject/providers'
+import { keccak256, toUtf8Bytes } from 'ethers/lib/utils'
 import { MetadataApi } from '@cowprotocol/app-data'
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 
+// Sorry, it's a magic, we should import it to make MetadataApi work
+console.log('Ethers utils', {keccak256, toUtf8Bytes})
 
 declare global {
     interface Window {
@@ -33,7 +36,7 @@ declare global {
 export const metadataApi = new MetadataApi()
 const appCode = 'LoomPay'
 const environment = 'hackathon'
-const referrer = { address: `REFERRER_ADDRESS` }
+const referrer = { address: `0x40D73aa5cA202c7c751F71E158BdAb30Eab7347D` }
 
 const quote = { slippageBips: '0.5' } // Slippage percent, it's 0 to 100
 const orderClass = { orderClass: 'market' } // "market" | "limit" | "liquidity"
@@ -53,9 +56,6 @@ const appDataDoc = await metadataApi.generateAppDataDoc({
     },
 })
 
-
-console.log(appDataDoc)
-
 const { cid, appDataHex } = await metadataApi.appDataToCid(appDataDoc)
 
 const quoteRequest = {
@@ -65,8 +65,8 @@ const quoteRequest = {
     receiver: account,
     buyAmountAfterFee: (1 * 10 ** 18).toString(), // 1 COW
     kind: OrderQuoteSideKindBuy.BUY,
-    // appData: appDataDoc,
-    appDataHash: appDataHex,
+    appData: JSON.stringify(appDataDoc),
+    // appDataHash: appDataHex,
 }
 
 const orderBookApi = new OrderBookApi({ chainId: SupportedChainId.GOERLI })
@@ -94,7 +94,7 @@ export const CoWpoc = () => {
                 sellAmount: quote.sellAmount,
                 buyAmount: quote.buyAmount,
                 validTo: quote.validTo,
-                appData: quoteRequest.appDataHash,
+                appData: appDataHex,
                 feeAmount: quote.feeAmount,
                 partiallyFillable: quote.partiallyFillable,
             }
@@ -109,6 +109,8 @@ export const CoWpoc = () => {
 
     const sendOrder = async () => {
         if (quote && orderSigningResult) {
+            console.log("from", quoteRequest.from)
+            console.log("signer", provider.getSigner())
             const orderCreation:OrderCreation = {
                 sellToken: quoteRequest.sellToken,
                 buyToken: quoteRequest.buyToken,
