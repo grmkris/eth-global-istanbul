@@ -42,7 +42,7 @@ export const Invoice = (props: { invoice: selectInvoiceSchema }) => {
           <Button
               variant="dark"
               className="text-success-400 gap-2 ml-2 mt-3"
-              onClick={() =>router.navigate({to: `/invoices`})}
+              onClick={() => router.navigate({to: `/invoices`})}
           >
               <ArrowLeft />
               Go Back
@@ -59,7 +59,7 @@ export const Invoice = (props: { invoice: selectInvoiceSchema }) => {
               </div>
               <>
                   {list.map(i => {
-                      return <Item key={Math.random()} title={i.name} value={i.value} />
+                      return <Item key={Math.random()} title={i.name} value={i.value}/>
                   })}
               </>
               <div className="flex justify-center mt-8">
