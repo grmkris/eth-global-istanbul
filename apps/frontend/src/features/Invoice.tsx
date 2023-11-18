@@ -12,9 +12,7 @@ import { GateFiSDK, GateFiDisplayModeEnum } from "@gatefi/js-sdk";
 import { Skeleton } from "@/components/ui/skeleton.tsx";
 import { MetadataApi, stringifyDeterministic } from '@cowprotocol/app-data'
 // Sorry, it's a magic, we should import it to make MetadataApi work
-import { keccak256, toUtf8Bytes } from 'ethers/lib/utils'
-import { OrderClass, OrderQuoteRequest, SigningScheme, SigningResult, OrderBookApi, OrderQuoteSideKindBuy, OrderSigningUtils, SupportedChainId, OrderParameters, UnsignedOrder, OrderKind, OrderCreation } from '@cowprotocol/cow-sdk'
-import { log } from "console";
+import { OrderClass, OrderQuoteRequest, SigningScheme, OrderBookApi, OrderQuoteSideKindBuy, OrderSigningUtils, SupportedChainId, UnsignedOrder, OrderKind, OrderCreation } from '@cowprotocol/cow-sdk'
 import { Web3Provider } from '@ethersproject/providers'
 
 const chainId = SupportedChainId.GOERLI
@@ -32,6 +30,7 @@ import { usePrepareContractWrite } from "wagmi";
 import erc20ABI from "backend/src/payment-checker/erc20Abi.json";
 import { useRouter } from "@tanstack/react-router";
 import {Web3Inbox} from "@/features/web3Inbox.tsx";
+import {toast} from "react-toastify";
 
 function ConnectButton() {
 
@@ -210,7 +209,12 @@ export const Invoice = (props: { invoice: selectInvoiceSchema }) => {
 
     if(!isLoading && isSuccess && props.invoice.status === "paid") {
         router.navigate({to:`/invoice-paid/${props.invoice.id}`})
+        toast.success("Invoice has been paid!")
     }
+
+   if (isLoading) {
+       toast.info("Transaction is pending!")
+   }
 
   return (
       <>
@@ -237,7 +241,10 @@ export const Invoice = (props: { invoice: selectInvoiceSchema }) => {
                   <div className="flex items-center gap-3">
                       <p className="text-sm">{props.invoice.wallet}</p>
                       <Copy className="cursor-pointer" size={16}
-                            onClick={async () => await navigator.clipboard.writeText(props.invoice.wallet)}/>
+                            onClick={async () => {
+                                await navigator.clipboard.writeText(props.invoice.wallet)
+                                toast.success(`"${props.invoice.wallet} is copied!"`)
+                            }}/>
                   </div>
                   <div className="text-sm">{props.invoice?.amountDue} {props.invoice.currency}</div>
               </div>

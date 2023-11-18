@@ -8,6 +8,8 @@ import {
   RouterProvider,
 } from "@tanstack/react-router";
 import ReactDOM from "react-dom/client";
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 import "./index.css";
 
@@ -83,7 +85,10 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <TrpcProvider>
       <AccountAbstractionProvider>
-        <RouterProvider router={router} />
+        <>
+          <RouterProvider router={router} />
+          <ToastContainer toastStyle={{ backgroundColor: "#323236" }} />
+        </>
       </AccountAbstractionProvider>
     </TrpcProvider>
   </StrictMode>,

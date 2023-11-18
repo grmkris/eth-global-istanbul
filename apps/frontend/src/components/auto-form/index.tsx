@@ -17,7 +17,7 @@ import {
 } from "./utils";
 
 export function AutoFormSubmit({ children }: { children?: React.ReactNode }) {
-  return <Button type="submit">{children ?? "Submit"}</Button>;
+  return <Button type="submit" variant="ghost" className="!text-black bg-success-400">{children ?? "Submit"}</Button>;
 }
 
 function AutoForm<SchemaType extends ZodObjectOrWrapped>({
