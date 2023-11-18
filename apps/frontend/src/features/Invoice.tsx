@@ -7,7 +7,7 @@ import {useAccount, useContractWrite, usePrepareContractWrite, useWalletClient, 
 import {Button} from "@/components/ui/button.tsx";
 import {Copy, CornerUpLeft} from "lucide-react";
 import {Checkbox} from "@/components/ui/checkbox.tsx";
-import React, {useEffect, useRef, useState} from "react";
+import {useEffect, useRef, useState} from "react";
 import {GateFiDisplayModeEnum, GateFiSDK} from "@gatefi/js-sdk";
 import {Skeleton} from "@/components/ui/skeleton.tsx";
 import {MetadataApi, stringifyDeterministic} from '@cowprotocol/app-data'
@@ -44,6 +44,34 @@ export function walletClientToSigner(walletClient: WalletClient) {
     return provider.getSigner(account.address)
 }
 
+import * as React from 'react'
+import { type PublicClient, usePublicClient } from 'wagmi'
+import { providers } from 'ethers'
+import { type HttpTransport } from 'viem'
+
+export function publicClientToProvider(publicClient: PublicClient) {
+    const { chain, transport } = publicClient
+    const network = {
+        chainId: chain.id,
+        name: chain.name,
+        ensAddress: chain.contracts?.ensRegistry?.address,
+    }
+    if (transport.type === 'fallback')
+        return new providers.FallbackProvider(
+            (transport.transports as ReturnType<HttpTransport>[]).map(
+                ({ value }) => new providers.JsonRpcProvider(value?.url, network),
+            ),
+        )
+    return new providers.JsonRpcProvider(transport.url, network)
+}
+
+/** Hook to convert a viem Public Client to an ethers.js Provider. */
+export function useEthersProvider({ chainId }: { chainId?: number } = {}) {
+    const publicClient = usePublicClient({ chainId })
+    return React.useMemo(() => publicClientToProvider(publicClient), [publicClient])
+}
+
+
 /** Hook to convert a viem Wallet Client to an ethers.js Signer. */
 export function useEthersSigner({ chainId }: { chainId?: number } = {}) {
     const { data: walletClient } = useWalletClient({ chainId })
@@ -66,11 +94,11 @@ function ConnectButton() {
 }
 
 
-export const Item = (props: { title: string, value: string | number, key: string | number, className?: string }) => {
+export const Item = (props: { title: string, value: string | number | undefined, key?: string | number, className?: string, sm?: boolean }) => {
   return (
       <div className={ `flex items-center p-2 border-b border-gray-800 ${ props.className }` }>
         <h6 className="text-success-400 text-sm min-w-[110px]">{ props.title }:</h6>
-        <p className="text-base text-success-400 font-bold">{ props.value }</p>
+        <p className={`${props.sm ? "text-xs" : "text-base"}  text-success-400 font-bold`}>{ props.value }</p>
       </div>
   )
 }
@@ -82,6 +110,7 @@ export const Invoice = (props: { invoice: selectInvoiceSchema }) => {
   const [selectedOption, setSelectedOption] = useState('')
   const [selectedToken, setSelectedToken] = useState()
   const signer = useEthersSigner()
+  const provider = useEthersProvider()
 
     const { config } = usePrepareContractWrite({
         address: balances.data?.find(i => i?.token.name === selectedOption)?.token.address as Address,

@@ -1,6 +1,5 @@
 import {
     useManageSubscription,
-    useSubscription,
     useW3iAccount,
     useInitWeb3InboxClient,
     useMessages
@@ -9,6 +8,8 @@ import { useCallback, useEffect } from 'react'
 import { useSignMessage, useAccount } from 'wagmi'
 import {Button} from "@/components/ui/button.tsx";
 import {z} from "zod";
+import {Skeleton} from "@/components/ui/skeleton.tsx";
+import {Item} from "@/features/Invoice.tsx";
 
 export const MessageSchema = z.object({
     id: z.number(),
@@ -74,7 +75,7 @@ export function Web3Inbox(props: {
         await subscribe()
     }, [subscribe, isRegistered])
 
-    const { subscription } = useSubscription()
+    // const { subscription } = useSubscription()
     const { messages } = useMessages()
 
     const filteredMessages = messages.map((message) => {
@@ -99,21 +100,24 @@ export function Web3Inbox(props: {
     </div>
 
     return (
-        <div className={"text-success-400"}>
+        <div className="text-success-400 mt-5 w-full">
             {!isReady ? (
-                <div>Loading client...</div>
+                <div className="flex flex-col justify-center gap-5">
+                    <p className="text-center">Loading client...</p>
+                    <Skeleton />
+                </div>
             ) : (
-                <>
+                <div className="w-full">
                     {!address ? (
-                        <div>Connect your wallet</div>
+                        <div className="text-center py-2">Connect your wallet</div>
                     ) : (
-                        <>
-                            <div>Address: {address}</div>
-                            <div>Account ID: {account}</div>
+                        <div className="text-sm">
+                            <Item sm title="Address" value={address} />
+                            <Item sm title="Account ID" value={account} />
                             {!isRegistered ? (
                                 <div>
                                     To manage notifications, sign and register an identity key:&nbsp;
-                                    <Button onClick={performRegistration} disabled={isRegistering}>
+                                    <Button className="ml-2" variant="ghost" onClick={performRegistration} disabled={isRegistering}>
                                         {isRegistering ? 'Signing...' : 'Sign'}
                                     </Button>
                                 </div>
@@ -121,13 +125,13 @@ export function Web3Inbox(props: {
                                 <>
                                     {!isSubscribed ? (
                                         <>
-                                            <Button onClick={performSubscribe} disabled={isSubscribing}>
+                                            <Button className="mt-5" onClick={performSubscribe} disabled={isSubscribing}>
                                                 {isSubscribing ? 'Subscribing...' : 'Subscribe to notifications'}
                                             </Button>
                                         </>
                                     ) : (
-                                        <>
-                                            <div>You are subscribed</div>
+                                        <div className="flex flex-col justify-center items-center mt-5 gap-3">
+                                            <div className="">You are subscribed</div>
                                             {filteredMessages[0] ?
                                                 <>
                                                     <h1> Messages:</h1>
@@ -135,13 +139,13 @@ export function Web3Inbox(props: {
                                                 </>
                                                 : <div>No messages from seller</div>
                                             }
-                                        </>
+                                        </div>
                                     )}
                                 </>
                             )}
-                        </>
+                        </div>
                     )}
-                </>
+                </div>
             )}
         </div>
     )
