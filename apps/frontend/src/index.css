@@ -84,21 +84,6 @@
   }
 }
 
-*::-webkit-scrollbar {
-  width: 0px;
-}
-
-*::-webkit-scrollbar-track {
-  background: transparent;
-  border-radius: 50px;
-}
-
-*::-webkit-scrollbar-thumb {
-  background-color: transparent;
-  border-radius: 14px;
-  border: 8px solid #000000;
-}
-
 @layer base {
   * {
     @apply border-border;
@@ -112,4 +97,19 @@
 
 .rdp-vhidden {
   @apply hidden;
+}
+
+*::-webkit-scrollbar {
+  width: 2px;
+}
+
+*::-webkit-scrollbar-track {
+  border-radius: 50px;
+  background-color: #1b1b1c;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: #3f5936;
+  border-radius: 14px;
+  height: 2px;
 }
