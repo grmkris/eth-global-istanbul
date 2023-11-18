@@ -50,7 +50,7 @@ createWeb3Modal({ wagmiConfig, projectId, chains })
 export function TrpcProvider(props: { children?: React.ReactNode }) {
   const [combinedClient] = useState(() => {
     return trpcClient.createClient({
-      links: [httpBatchLink({ url: "https://back-production-2099.up.railway.app/trpc" })],
+      links: [httpBatchLink({ url: "http://localhost:8080/trpc" })],
     });
   });
 

@@ -6,7 +6,7 @@ export const trpcClient = createTRPCReact<ElysiaRouter>();
 export const trpc = createTRPCProxyClient<ElysiaRouter>({
   links: [
     httpBatchLink({
-      url: "https://back-production-2099.up.railway.app/trpc",
+      url: "http://localhost:8080/trpc",
     }),
   ],
 });

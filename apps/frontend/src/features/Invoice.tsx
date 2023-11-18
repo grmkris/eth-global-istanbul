@@ -10,6 +10,7 @@ import { useRouter } from "@tanstack/react-router";
 import { Checkbox } from "@/components/ui/checkbox.tsx";
 import { useEffect, useRef, useState } from "react";
 import { GateFiSDK, GateFiDisplayModeEnum } from "@gatefi/js-sdk";
+import {trpcClient} from "@/features/trpc-client.ts";
 
 function ConnectButton() {
   return <w3m-button />
@@ -29,6 +30,10 @@ export const Item = (props: { title: string, value: string | number, key: string
 export const Invoice = (props: { invoice: selectInvoiceSchema }) => {
   console.log(props.invoice);
   const router = useRouter()
+
+  const signature = trpcClient.onrampConfig.useQuery()
+
+  console.log(signature.data);
 
   const list = [
     { name: "ID", value: props.invoice.id },
