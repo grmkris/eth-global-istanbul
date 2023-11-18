@@ -80,6 +80,7 @@ export function Web3Inbox(props: {
 
     // const { subscription } = useSubscription()
     const { messages } = useMessages()
+    console.log("999999", messages)
 
     const filteredMessages = messages.map((message) => {
         const parsed = MessageSchema.parse(message)
@@ -139,10 +140,12 @@ export function Web3Inbox(props: {
                                         <div className="flex flex-col justify-center items-center mt-5 gap-3">
                                             <div className="">You are subscribed</div>
                                             {filteredMessages[0] ?
-                                                <>
-                                                    <h1> Messages:</h1>
-                                                    <div>{JSON.stringify(filteredMessages[0].message)}</div>
-                                                </>
+                                                <div className="flex flex-col gap-3">
+                                                    <h1>Messages:</h1>
+                                                    <div className="text-base text-center">{JSON.stringify(filteredMessages[0].message.title)}</div>
+                                                    <div className="text-sm text-center">{JSON.stringify(filteredMessages[0].message.url)}</div>
+                                                    <div className="text-sm text-center">{JSON.stringify(filteredMessages[0].message.body)}</div>
+                                                </div>
                                                 : <div>No messages from seller</div>
                                             }
                                         </div>
