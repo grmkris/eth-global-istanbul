@@ -58,10 +58,6 @@ export const Layout = () => {
                       href="#"
                       className="hover:bg-primary-900 group -mx-2 flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 text-gray-700 hover:text-gray-400"
                   >
-                    {/*<SettingsIcon*/}
-                    {/*    className="h-6 w-6 shrink-0 text-gray-400 group-hover:text-gray-400"*/}
-                    {/*    aria-hidden="true"*/}
-                    {/*/>*/}
                     <img width="30" height="30" src="/icons/glasses.svg" alt="" />
                     Settings
                   </a>
