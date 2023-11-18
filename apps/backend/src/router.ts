@@ -54,6 +54,7 @@ export const elysiaRouter = router({
                 type: "6b68cf7f-d7f8-46f3-bfa0-822cb613eef6", // Notification type ID copied from Cloud
                 title: "Your invoice has been handled",
                 body: "Thank you, come again",
+                orderId: input,
                 icon: "https://app.example.com/icon.png", // optional
                 url: `http://localhost:5173/invoice/${input}`, // optional
               },
