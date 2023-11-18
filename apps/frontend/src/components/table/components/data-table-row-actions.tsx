@@ -11,6 +11,7 @@ import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 import { useRouter } from "@tanstack/react-router";
 import { Row } from "@tanstack/react-table";
 import {Eye, Forward, Pencil, Trash} from "lucide-react";
+import {toast} from "react-toastify";
 
 interface DataTableRowActionsProps<TData> {
   row: Row<TData>;
@@ -63,7 +64,10 @@ export function DataTableRowActions<TData>({
           <Forward size="16" />
         </DropdownMenuItem>
         {/* @ts-expect-error TODO: fix this */}
-        <DropdownMenuItem onClick={() => onDelete?.(row.original.id)}>
+        <DropdownMenuItem onClick={() => {
+          onDelete?.(row.original.id)
+          toast.success("Invoice has been deleted!")
+        }}>
           Delete
           <Trash size="16" />
         </DropdownMenuItem>

@@ -38,7 +38,7 @@ export const Layout = () => {
               <ul role="list" className="flex flex-1 flex-col gap-y-7">
                 <li>
                   <ul role="list" className="-mx-2 space-y-1">
-                    { ["invoices", "payments", "selected_tokens"].map((item) => (
+                    { ["invoices", "payments"].map((item) => (
                         <li key={ item }>
                           <a // TODO start using router and link
                               href={ `/${ item }` }

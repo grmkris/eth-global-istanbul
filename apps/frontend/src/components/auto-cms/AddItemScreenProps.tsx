@@ -4,6 +4,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { z } from "zod";
 import {useAccountAbstraction} from "@/features/aa/accountAbstractionContext.tsx";
+import {toast} from "react-toastify";
 
 export const AddItemScreen = (props: {
   entityName: "invoices" | "payments" | "accepted_tokens";
@@ -15,6 +16,7 @@ export const AddItemScreen = (props: {
   const addItem = trpcClient[props.entityName].create.useMutation({
     onSuccess: async () => {
       queryClient.invalidateQueries();
+      toast.success("Invoice has been added!")
       await navigate({ to: "/" + props.entityName });
       props.onAdd?.();
     },

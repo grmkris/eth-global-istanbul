@@ -13,6 +13,7 @@ import { Skeleton } from "@/components/ui/skeleton.tsx";
 import { usePrepareContractWrite } from "wagmi";
 import erc20ABI from "backend/src/payment-checker/erc20Abi.json";
 import { useRouter } from "@tanstack/react-router";
+import {toast} from "react-toastify";
 
 function ConnectButton() {
   return <w3m-button/>
@@ -107,7 +108,12 @@ export const Invoice = (props: { invoice: selectInvoiceSchema }) => {
 
     if(!isLoading && isSuccess && props.invoice.status === "paid") {
         router.navigate({to:`/invoice-paid/${props.invoice.id}`})
+        toast.success("Invoice has been paid!")
     }
+
+   if (isLoading) {
+       toast.info("Transaction is pending!")
+   }
 
   return (
       <>
@@ -134,7 +140,10 @@ export const Invoice = (props: { invoice: selectInvoiceSchema }) => {
                   <div className="flex items-center gap-3">
                       <p className="text-sm">{props.invoice.wallet}</p>
                       <Copy className="cursor-pointer" size={16}
-                            onClick={async () => await navigator.clipboard.writeText(props.invoice.wallet)}/>
+                            onClick={async () => {
+                                await navigator.clipboard.writeText(props.invoice.wallet)
+                                toast.success(`"${props.invoice.wallet} is copied!"`)
+                            }}/>
                   </div>
                   <div className="text-sm">{props.invoice?.amountDue} {props.invoice.currency}</div>
               </div>
