@@ -14,7 +14,7 @@ WORKDIR /usr/src/app
 # Make sure the user has permission to create directories
 COPY . .
 RUN npm install
-
+RUN npm run build:frontend
 # Final stage
 FROM base AS release
 WORKDIR /usr/src/app
@@ -23,4 +23,4 @@ COPY --from=base /usr/src/app .
 # Setup environment and run the service
 ENV NODE_ENV=production
 EXPOSE 5173/tcp
-ENTRYPOINT [ "npm", "run", "dev:frontend"]
+ENTRYPOINT [ "npm", "run", "serve:frontend"]

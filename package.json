@@ -17,8 +17,8 @@
     "docker:build:front": "docker build -f front.Dockerfile -t front-istanbul .",
     "docker:build:back": "docker build -t bakcend-istanbul .",
     "docker:run:front": "docker run -p 5173:5173 front-istanbul",
-    "docker:run:back": "docker run -p 8080:8080 bakcend-istanbul"
-
+    "docker:run:back": "docker run -p 8080:8080 bakcend-istanbul",
+    "serve:frontend": "cd apps/frontend && npm run serve"
 
   },
   "devDependencies": {

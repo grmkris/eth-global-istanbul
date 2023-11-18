@@ -11,7 +11,7 @@ import cron from "@elysiajs/cron";
 import {checkInvoices} from "./payment-checker/paymentChecker";
 
 const app = new Elysia()
-  .use(cors({ origin: "localhost:5173" }))
+  .use(cors({ origin: ["localhost:5173", "front-production-8725.up.railway.app", "localhost:4173"] }))
   .use(trpc(elysiaRouter))
   .use(html())
   .get("/trpc-panel", () => {
