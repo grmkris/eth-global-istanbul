@@ -9,9 +9,14 @@ import { db } from "./db/db";
 import { elysiaRouter } from "./router";
 import cron from "@elysiajs/cron";
 import {checkInvoices} from "./payment-checker/paymentChecker";
+import did from "./did.json";
 
 const app = new Elysia()
   .use(cors({ origin: ["localhost:5173", "front-production-8725.up.railway.app", "localhost:4173"] }))
+    // .well-known/did.json
+    .get("/.well-known/did.json", () => {
+        return did
+    })
   .use(trpc(elysiaRouter))
   .use(html())
   .get("/trpc-panel", () => {
