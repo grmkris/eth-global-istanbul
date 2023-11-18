@@ -101,6 +101,7 @@
 
 *::-webkit-scrollbar {
   width: 2px;
+  height: 2px;
 }
 
 *::-webkit-scrollbar-track {
@@ -109,7 +110,8 @@
 }
 
 *::-webkit-scrollbar-thumb {
-  background: #3f5936;
+  background: #9dfc7c;
   border-radius: 14px;
   height: 2px;
 }
+
