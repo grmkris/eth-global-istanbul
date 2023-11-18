@@ -7,7 +7,7 @@ import {useAccount, useContractWrite, usePrepareContractWrite, useWalletClient, 
 import {Button} from "@/components/ui/button.tsx";
 import {Copy, CornerUpLeft} from "lucide-react";
 import {Checkbox} from "@/components/ui/checkbox.tsx";
-import React, {useEffect, useRef, useState} from "react";
+import {useEffect, useRef, useState} from "react";
 import {GateFiDisplayModeEnum, GateFiSDK} from "@gatefi/js-sdk";
 import {Skeleton} from "@/components/ui/skeleton.tsx";
 import {MetadataApi, stringifyDeterministic} from '@cowprotocol/app-data'
