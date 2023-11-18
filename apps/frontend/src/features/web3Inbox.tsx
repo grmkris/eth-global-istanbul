@@ -58,10 +58,19 @@ export function Web3Inbox() {
     const { subscription } = useSubscription()
     const { messages } = useMessages()
 
+    console.log("helloweb3inbox", {
+        isReady, isSubscribed})
+
 
     if (!isReady) return <div>Loading notifications...</div>
 
-    if (!isSubscribed) return <div>Not subscribed</div>
+    if (!isSubscribed) return <div>Not subscribed
+            <>
+                <Button onClick={performSubscribe} disabled={isSubscribing}>
+                    {isSubscribing ? 'Subscribing...' : 'Subscribe to notifications'}
+                </Button>
+            </>
+    </div>
 
     return (
         <div className={"text-success-400"}>
@@ -94,7 +103,8 @@ export function Web3Inbox() {
                                         <>
                                             <div>You are subscribed</div>
                                             <div>Subscription: {JSON.stringify(subscription)}</div>
-                                            <div>Messages: {JSON.stringify(messages)}</div>
+                                            <h1> Messages:</h1>
+                                            <div>{JSON.stringify(messages)}</div>
                                         </>
                                     )}
                                 </>

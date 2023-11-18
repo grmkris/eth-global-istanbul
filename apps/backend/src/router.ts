@@ -41,8 +41,6 @@ export const elysiaRouter = router({
         status: 'handled'
       }).where(eq(invoices.id, input)).returning().execute();
 
-      handled[0].payerWallet
-
       const response = await fetch(
           'https://notify.walletconnect.com/b769195d525fcd74f9ac88723ad1b8c5/notify', // TODO move this to env
           {
@@ -60,7 +58,7 @@ export const elysiaRouter = router({
                 url: `http://localhost:5173/invoice/${input}`, // optional
               },
               accounts: [
-                "eip155:1:0xABC123" // CAIP-10 account ID
+                `eip155:1:${handled[0].payerWallet}`
               ]
             })
           }

@@ -1,4 +1,5 @@
 import { selectInvoiceSchema } from "backend/src/db/invoices.ts";
+import {Web3Inbox} from "@/features/web3Inbox.tsx";
 
 export const InvoicePaid = (props: {
   invoice: selectInvoiceSchema
@@ -17,16 +18,9 @@ export const InvoicePaid = (props: {
 
             <h1 className="text-4xl text-success-400">Thank You!</h1>
             <p className="text-md text-success-400">Invoice <a className="underline"
-                                                               href={ `/invoice-details/${ props.invoice.id }` }>{ props.invoice.id }</a> has
+                                                               href={ `/invoice/${ props.invoice.id }` }>{ props.invoice.id }</a> has
               been paid</p>
-            <button
-                className="duration-500 ease-in-out inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50 border border-success-400 bg-primary-900 hover:opacity-60 h-10 px-4 py-2 mb-4 ml-4 text-success-400">
-
-              <a href="/invoices"><span className="text-sm font-medium">
-                  Invoices
-                </span>
-              </a>
-            </button>
+            <Web3Inbox/>
           </div>
         </div>
       </>

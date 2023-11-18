@@ -14,11 +14,10 @@ import erc20ABI from "./erc20Abi.json";
 
 export const viemPublic = createPublicClient({
     chain: goerli,
-    transport: http()
+    transport: http("https://goerli.infura.io/v3/53f3337eeacb44089e2285462c9e80d6")
 })
 
 
-export const usdcContractAddress = '0x30A01fe57Fe433D17DD168EAF80Bd91f2719f7D9' // GOERLI https://faucet.allianceblock.io/
 export async function checkInvoices() {
     console.log("Checking invoices")
     const unpaidInvoices = await db.query.invoices.findMany({
@@ -37,7 +36,6 @@ export async function checkInvoices() {
 
     console.log("blockToCheckFrom", blockToCheckFrom)
     const logs = await viemPublic.getContractEvents({
-        address: usdcContractAddress,
         abi: erc20ABI,
         eventName: 'Transfer',
         args: {
@@ -72,7 +70,7 @@ export async function checkInvoices() {
         } satisfies selectPaymentSchema;
 
         const result = await db.insert(payments).values(newPayment).returning().execute();
-        const result2 = await db.update(invoices).set({status: "paid", payerWallet: transfer.from}).where(eq(invoices.id, unpaidInvoices[0].id)).execute();
+        const result2 = await db.update(invoices).set({status: "paid", payerWallet: transfer.args.from}).where(eq(invoices.id, unpaidInvoices[0].id)).execute();
 
         console.log("paid", {
             result, result2

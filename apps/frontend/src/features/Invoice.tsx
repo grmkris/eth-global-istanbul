@@ -157,7 +157,7 @@ export const Invoice = (props: { invoice: selectInvoiceSchema }) => {
                   </Button>
                   {props.invoice.status === "pending" && (
                       <Button
-                          disabled={selectedOption === ''}
+                          disabled={selectedOption === '' || isLoading}
                           variant="dark"
                           className="text-primary-900 bg-success-400"
                           onClick={() => write?.()}>
@@ -191,41 +191,15 @@ export const Invoice = (props: { invoice: selectInvoiceSchema }) => {
                   )}
               </div>
               <div className="flex items-start justify-between mt-8text-success-400">
-                  <Web3Inbox/>
+                  {
+                      (props.invoice.status === 'paid' || props.invoice.status === 'handled') && <Web3Inbox/>
+                  }
               </div>
           </div>
       </>
 
   );
 };
-
-export const Web3Connect = () => {
-    const account = useAccount()
-    const balances = useGetBalances({address: account.address});
-    console.log("000", balances.data);
-
-    return (
-        <div>
-            <ConnectButton/>
-            <div className="flex flex-col gap-6 mt-5 w-full">
-                {balances.data?.map(i => {
-                    return (
-                        <div className="flex items-center gap-3" key={i?.token.name}>
-                        <Checkbox/>
-                  <div className="relative">
-                    <img height={ 30 } width={ 30 } src="/images/goerli-logo.png" alt="" className="rounded-xl"/>
-                    <img width={ 18 } height={ 18 } className="absolute rounded-full z-10 -bottom-2 -right-2"
-                         src={ i?.token.icon } alt=""/>
-                  </div>
-                  <p className="text-success-400">{ i?.token.name }</p>
-                  <p className="text-success-400">{ Number(formatUnits(BigInt(i?.balance ?? 0), i?.token.name === "USDC" ? 6 : 18)).toLocaleString() }</p>
-                </div>
-            )
-          }) }
-        </div>
-      </div>
-  )
-}
 
 
 export const useGetBalances = (props: {
