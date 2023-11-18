@@ -13,7 +13,7 @@ export default defineConfig({
   },
   build: {
     rollupOptions: {
-      external: ["backend"],
+      external: ["backend/src/db/schema.ts"],
     }
   }
 });
