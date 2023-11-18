@@ -8,6 +8,7 @@ import {
 import { useCallback, useEffect } from 'react'
 import { useSignMessage, useAccount } from 'wagmi'
 import {Button} from "@/components/ui/button.tsx";
+import {toast} from "react-toastify";
 
 export function Web3Inbox() {
     const { address } = useAccount()
@@ -38,7 +39,7 @@ export function Web3Inbox() {
         try {
             await register(message => signMessageAsync({ message }))
         } catch (registerIdentityError) {
-            alert(registerIdentityError)
+            toast.error(registerIdentityError)
         }
     }, [signMessageAsync, register, address])
 
@@ -64,12 +65,13 @@ export function Web3Inbox() {
 
     if (!isReady) return <div>Loading notifications...</div>
 
-    if (!isSubscribed) return <div>Not subscribed
-            <>
-                <Button onClick={performSubscribe} disabled={isSubscribing}>
+    if (!isSubscribed) return <div className="flex flex-col justify-center items-center w-full">
+            <p className="text-center text-gray-400 mt-5">Not subscribed</p>
+            <div className="mt-2">
+                <Button variant="ghost" className="text-black bg-success-400" onClick={performSubscribe} disabled={isSubscribing}>
                     {isSubscribing ? 'Subscribing...' : 'Subscribe to notifications'}
                 </Button>
-            </>
+            </div>
     </div>
 
     return (
@@ -95,7 +97,7 @@ export function Web3Inbox() {
                                 <>
                                     {!isSubscribed ? (
                                         <>
-                                            <Button onClick={performSubscribe} disabled={isSubscribing}>
+                                            <Button variant="ghost" className="text-black bg-success-400" onClick={performSubscribe} disabled={isSubscribing}>
                                                 {isSubscribing ? 'Subscribing...' : 'Subscribe to notifications'}
                                             </Button>
                                         </>
