@@ -4,7 +4,7 @@ export const Landing = () => {
   return (
       <div className="bg-background-dark h-screen">
           <Header />
-          <div className="mx-auto mt-20 text-success-400">
+          <div className="mx-auto mt-10 text-success-400">
               <h1 className="ml-20 mb-5 text-4xl font-bold">Welcome to LoomPay</h1>
               <div className="flex justify-center gap-5">
                   <img
