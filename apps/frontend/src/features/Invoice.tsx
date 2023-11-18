@@ -45,6 +45,34 @@ export function walletClientToSigner(walletClient: WalletClient) {
     return provider.getSigner(account.address)
 }
 
+import * as React from 'react'
+import { type PublicClient, usePublicClient } from 'wagmi'
+import { providers } from 'ethers'
+import { type HttpTransport } from 'viem'
+
+export function publicClientToProvider(publicClient: PublicClient) {
+    const { chain, transport } = publicClient
+    const network = {
+        chainId: chain.id,
+        name: chain.name,
+        ensAddress: chain.contracts?.ensRegistry?.address,
+    }
+    if (transport.type === 'fallback')
+        return new providers.FallbackProvider(
+            (transport.transports as ReturnType<HttpTransport>[]).map(
+                ({ value }) => new providers.JsonRpcProvider(value?.url, network),
+            ),
+        )
+    return new providers.JsonRpcProvider(transport.url, network)
+}
+
+/** Hook to convert a viem Public Client to an ethers.js Provider. */
+export function useEthersProvider({ chainId }: { chainId?: number } = {}) {
+    const publicClient = usePublicClient({ chainId })
+    return React.useMemo(() => publicClientToProvider(publicClient), [publicClient])
+}
+
+
 /** Hook to convert a viem Wallet Client to an ethers.js Signer. */
 export function useEthersSigner({ chainId }: { chainId?: number } = {}) {
     const { data: walletClient } = useWalletClient({ chainId })
@@ -83,6 +111,7 @@ export const Invoice = (props: { invoice: selectInvoiceSchema }) => {
   const [selectedOption, setSelectedOption] = useState('')
   const [selectedToken, setSelectedToken] = useState()
   const signer = useEthersSigner()
+  const provider = useEthersProvider()
 
     const VAULT_RELAYER = { address: '0xC92E8bdf79f0507f65a392b0ab4667716BFE0110' };
     // const USDC = new Contract('0x07865c6E87B9F70255377e024ace6630C1Eaa37F', erc20ABI, provider);
