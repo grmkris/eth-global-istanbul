@@ -96,7 +96,7 @@ function ConnectButton() {
 
 export const Item = (props: { title: string, value: string | number | undefined, key?: string | number, className?: string, sm?: boolean }) => {
   return (
-      <div className={ `flex items-center p-2 border-b border-gray-800 ${ props.className }` }>
+      <div className={ `flex items-center p-2 border-b border-gray-800 ${ props.className } ${props.sm ? "justify-between" : ""}` }>
         <h6 className="text-success-400 text-sm min-w-[110px]">{ props.title }:</h6>
         <p className={`${props.sm ? "text-xs" : "text-base"}  text-success-400 font-bold`}>{ props.value }</p>
       </div>

@@ -89,18 +89,19 @@ export function Web3Inbox(props: {
         isReady, isSubscribed})
 
 
-    if (!isReady) return <div>Loading notifications...</div>
+    if (!isReady) return <div className="text-center text-gray-400">Loading notifications...</div>
 
-    if (!isSubscribed) return <div>Not subscribed
+    if (!isSubscribed) return <div className="flex flex-col items-center w-full mt-5">
+        <p className="text-gray-400 text-center">Not subscribed</p>
             <>
-                <Button onClick={performSubscribe} disabled={isSubscribing}>
+                <Button className="mt-5" onClick={performSubscribe} disabled={isSubscribing}>
                     {isSubscribing ? 'Subscribing...' : 'Subscribe to notifications'}
                 </Button>
             </>
     </div>
 
     return (
-        <div className="text-success-400 mt-5 w-full">
+        <div className="text-success-400 mt-5 w-full max-w-2xl mx-auto">
             {!isReady ? (
                 <div className="flex flex-col justify-center gap-5">
                     <p className="text-center">Loading client...</p>
