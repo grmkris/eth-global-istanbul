@@ -12,7 +12,7 @@ import {checkInvoices} from "./payment-checker/paymentChecker";
 import did from "./did.json";
 
 const app = new Elysia()
-  .use(cors({ origin: ["localhost:5173", "front-production-8725.up.railway.app", "localhost:4173", "cloud.walletconnect.com", "api.blabla.pink"] }))
+  .use(cors({ origin: ["localhost:5173", "front-production-8725.up.railway.app", "localhost:4173", "cloud.walletconnect.com", "api.blabla.pink", "blabla.pink"] }))
     // .well-known/did.json
     .get("/.well-known/did.json", () => {
         return did

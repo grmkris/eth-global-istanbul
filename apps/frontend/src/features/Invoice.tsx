@@ -8,6 +8,9 @@ import {Button} from "@/components/ui/button.tsx";
 import {Copy, CornerUpLeft} from "lucide-react";
 import {Checkbox} from "@/components/ui/checkbox.tsx";
 import {useEffect, useRef, useState} from "react";
+import { type PublicClient, usePublicClient } from 'wagmi'
+import { providers } from 'ethers'
+import { type HttpTransport } from 'viem'
 import {GateFiDisplayModeEnum, GateFiSDK} from "@gatefi/js-sdk";
 import {Skeleton} from "@/components/ui/skeleton.tsx";
 import {MetadataApi, stringifyDeterministic} from '@cowprotocol/app-data'
@@ -44,11 +47,6 @@ export function walletClientToSigner(walletClient: WalletClient) {
     const provider = new Web3Provider(transport, network)
     return provider.getSigner(account.address)
 }
-
-import * as React from 'react'
-import { type PublicClient, usePublicClient } from 'wagmi'
-import { providers } from 'ethers'
-import { type HttpTransport } from 'viem'
 
 export function publicClientToProvider(publicClient: PublicClient) {
     const { chain, transport } = publicClient
@@ -95,11 +93,11 @@ function ConnectButton() {
 }
 
 
-export const Item = (props: { title: string, value: string | number, key: string | number, className?: string }) => {
+export const Item = (props: { title: string, value: string | number | undefined, key?: string | number, className?: string, sm?: boolean }) => {
   return (
-      <div className={ `flex items-center p-2 border-b border-gray-800 ${ props.className }` }>
+      <div className={ `flex items-center p-2 border-b border-gray-800 ${ props.className } ${props.sm ? "justify-between" : ""}` }>
         <h6 className="text-success-400 text-sm min-w-[110px]">{ props.title }:</h6>
-        <p className="text-base text-success-400 font-bold">{ props.value }</p>
+        <p className={`${props.sm ? "text-xs" : "text-base"}  text-success-400 font-bold`}>{ props.value }</p>
       </div>
   )
 }
@@ -160,6 +158,7 @@ export const Invoice = (props: { invoice: selectInvoiceSchema }) => {
     // const USDC = new Contract('0x07865c6E87B9F70255377e024ace6630C1Eaa37F', erc20ABI, provider);
     const COW = new Contract('0x91056D4A53E1faa1A84306D4deAEc71085394bC8', erc20ABI, provider);
 
+    if (!signer) throw new Error('No signer')
     const orderBookApi = new OrderBookApi({ chainId: chainId })
 
     // const permit = {
@@ -329,6 +328,9 @@ export const Invoice = (props: { invoice: selectInvoiceSchema }) => {
           "USDC_POLYGON"
         ],
         walletLock: true,
+        fiatCurrencyLock: true,
+        cryptoCurrencyLock: true,
+        fiatAmountLock: true,
 
       });
     }
@@ -439,7 +441,7 @@ export const Invoice = (props: { invoice: selectInvoiceSchema }) => {
               </div>
               <div className="flex items-start justify-between mt-8text-success-400">
                   {
-                      (props.invoice.status === 'paid' || props.invoice.status === 'handled') && <Web3Inbox orderId={props.invoice.id}/>
+                      (props.invoice.status === 'paid' || props.invoice.status === 'handled') && <Web3Inbox invoiceId={props.invoice.id}/>
                   }
               </div>
           </div>
