@@ -3,9 +3,8 @@ import { useAccountAbstraction } from "@/features/aa/accountAbstractionContext.t
 import { Outlet, useRouter } from "@tanstack/react-router";
 import { SettingsIcon } from "lucide-react";
 import {useQuery} from "@tanstack/react-query";
-import {Address, createPublicClient, formatUnits, http} from "viem";
-import erc20ABI from "backend/src/payment-checker/erc20Abi.json";
-import {goerli} from "viem/chains";
+import {Address, formatUnits} from "viem";
+import {getWalletBalance, usdcContractAddress} from "@/features/balance-check.ts";
 
 function toUppercaseFirst(str: string) {
   return str.charAt(0).toUpperCase() + str.slice(1);
@@ -80,20 +79,10 @@ export const Layout = () => {
 const WalletInfoBanner = () => {
   const { ownerAddress, safeSelected } = useAccountAbstraction();
 
-  const balance = useQuery({
-    enabled: !!safeSelected,
-    queryKey: ["balance", safeSelected],
-    queryFn: async () => {
-      if (!safeSelected) throw new Error("No safe selected");
-      const res = getWalletBalance({
-        wallet: safeSelected,
-        erc20: usdcContractAddress
-      });
-      return res;
-    },
-    refetchInterval: 5000,
-  });
-
+  const balance = useGetBalance({
+    wallet: safeSelected,
+    token: usdcContractAddress
+  })
   return (
       <div className="flex flex-col gap-4 p-6 border-success-400 bg-primary-900 rounded-xl border shadow-sm w-full">
         <h1 className="text-lg font-bold text-success-400">Your safe: {safeSelected} </h1>
@@ -104,24 +93,23 @@ const WalletInfoBanner = () => {
 };
 
 
-export const viemPublic = createPublicClient({
-  chain: goerli,
-  transport: http()
-})
-
-
-
-export const getWalletBalance = async (props: {
-  wallet: string, erc20: Address
+export const useGetBalance = (props: {
+  wallet?: string;
+  token: Address;
 }) => {
+  const balance = useQuery({
+    enabled: !!props.wallet,
+    queryKey: ["balance", props.wallet],
+    queryFn: async () => {
+        if (!props.wallet) throw new Error("No safe selected");
+      const res = getWalletBalance({
+        wallet: props.wallet,
+        erc20: props.token
+      });
+      return res;
+    },
+    refetchInterval: 5000,
+  });
 
-  const balance = await viemPublic.readContract({
-    address: props.erc20,
-    abi: erc20ABI,
-    functionName: 'balanceOf',
-    args: [props.wallet]
-  })
-  return balance
+  return balance;
 }
-
-export const usdcContractAddress = '0x30A01fe57Fe433D17DD168EAF80Bd91f2719f7D9' // GOERLI https://faucet.allianceblock.io/

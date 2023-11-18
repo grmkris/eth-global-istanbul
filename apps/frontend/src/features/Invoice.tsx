@@ -1,6 +1,9 @@
 import { selectInvoiceSchema } from "backend/src/db/invoices.ts";
 import { QRCode } from 'react-qrcode-logo';
-import { formatUnits } from 'viem'
+import {Address, formatUnits} from 'viem'
+import {useQuery} from "@tanstack/react-query";
+import {ENABLED_TOKENS_GOERLI, getWalletBalance} from "@/features/balance-check.ts";
+import {useAccount} from "wagmi";
 
 function ConnectButton() {
     return <w3m-button />
@@ -48,8 +51,46 @@ export const Invoice = (props: { invoice: selectInvoiceSchema }) => {
           })}
         </>
           <div className="flex justify-center mt-8">
-              <ConnectButton/>
+              <Web3Connect/>
               </div>
       </div>
   );
 };
+
+export const Web3Connect = () => {
+    const account = useAccount()
+    const balances = useGetBalances({address: account.address});
+
+    console.log(balances.data);
+    return (
+        <ConnectButton/>
+    )
+}
+
+
+export const useGetBalances = (props: {
+    address?: Address;
+}) => {
+    return useQuery({
+        enabled: !!props.address,
+        queryKey: ["balances", props.address, ENABLED_TOKENS_GOERLI],
+        queryFn: async () => {
+            if (!props.address) return;
+            const balances = ENABLED_TOKENS_GOERLI.map(async (token) => {
+                if (!props.address) return;
+                const balance = await getWalletBalance({wallet: props.address, erc20: token.address});
+                console.log(balance);
+                return {
+                    token,
+                    balance
+                }
+            })
+
+            // await Promise.all(balances);
+            const data = await Promise.all(balances);
+
+            // filter out empty balances
+            return data.filter(balance => balance?.balance !== BigInt(0));
+        },
+    });
+}
