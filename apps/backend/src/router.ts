@@ -1,6 +1,6 @@
-import { z } from "zod";
+import {z} from "zod";
 
-import { db } from "./db/db";
+import {db} from "./db/db";
 import {
   insertInvoiceSchema,
   insertPaymentSchema,
@@ -9,9 +9,10 @@ import {
   selectInvoiceSchema,
   selectPaymentSchema,
 } from "./db/schema";
-import { createRouterFactory } from "./genericRouter";
-import { publicProcedure, router } from "./trpc";
+import {createRouterFactory} from "./genericRouter";
+import {publicProcedure, router} from "./trpc";
 import {createHmac} from "crypto"
+import {eq} from "drizzle-orm";
 
 export const elysiaRouter = router({
   hello: publicProcedure.input(z.string().nullish()).query(({ input }) => {
@@ -33,6 +34,40 @@ export const elysiaRouter = router({
     table: payments,
     db: db,
   }),
+  markInvoiceHandled: publicProcedure
+    .input(z.string())
+    .mutation(async ({ input }) => {
+      const handled = await db.update(invoices).set({
+        status: 'handled'
+      }).where(eq(invoices.id, input)).returning().execute();
+
+      const response = await fetch(
+          'https://notify.walletconnect.com/b769195d525fcd74f9ac88723ad1b8c5/notify', // TODO move this to env
+          {
+            method: "POST",
+            headers: {
+              Authorization: 'Bearer b0ee6482-b4df-48eb-93ed-9d584c241a99',
+            "Content-Type": 'application/json'
+            },
+            body: JSON.stringify({
+              notification: {
+                type: "6b68cf7f-d7f8-46f3-bfa0-822cb613eef6", // Notification type ID copied from Cloud
+                title: "Your invoice has been handled",
+                body: "Thank you, come again",
+                icon: "https://app.example.com/icon.png", // optional
+                url: `http://localhost:5173/invoice/${input}`, // optional
+              },
+              accounts: [
+                `eip155:1:${handled[0].payerWallet}`
+              ]
+            })
+          }
+      );
+
+      console.log("markInvoiceHandled", {handled, response});
+
+      return handled;
+    }),
   onrampConfig: publicProcedure.query(async () => {
     console.log("onrampConfig1 generateSignature");
     let secretkey = "EtCjeTWWVRVICQpiBrVSUsZPtdTahQku";

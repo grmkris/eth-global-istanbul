@@ -30,7 +30,7 @@ const app = new Elysia()
     .use(
     cron({
     name: 'heartbeat',
-    pattern: '*/20 * * * * *',
+    pattern: '*/10 * * * * *',
             run() {
          checkInvoices()
     }

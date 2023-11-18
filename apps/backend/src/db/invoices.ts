@@ -18,7 +18,7 @@ export const invoices = sqliteTable("invoices", {
   currency: text("currency", { enum: ["USD", "EUR", "JPY", "CAD"] }).notNull(),
   dueDate: integer("due_date", { mode: "timestamp" }),
   wallet: text("wallet").notNull(), // Address for receiving payments // safe sdk
-  status: text("status", { enum: ["pending", "paid"] }).notNull(),
+  status: text("status", { enum: ["pending", "paid", "handled"] }).notNull(),
   createdAt: integer("created_at", { mode: "timestamp" }).defaultNow(),
   updatedAt: integer("updated_at", { mode: "timestamp" }).defaultNow(),
 });

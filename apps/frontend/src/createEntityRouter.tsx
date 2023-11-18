@@ -149,6 +149,12 @@ export function generateEntityRouter<
               to: `/${entityRoute.id}/${input.id}/edit`,
             });
           },
+          onHandled: async (id) => {
+            if (entityRoute.id === "invoices") {
+              await trpc.markInvoiceHandled.mutate(id);
+              await queryClient.invalidateQueries();
+            }
+          }
         },
       );
       console.log("columns", {
@@ -257,7 +263,9 @@ export function generateEntityRouter<
       const { id } = useParams();
       // @ts-expect-error TODO i don't know how to fix this
       const user = trpcClient[`${entityRoute.id}`].get.useQuery(id);
-      if (user.isLoading || !user.data) return <div>Loading...</div>;
+      if (user.isLoading || !user.data) return <div>
+        <Skeleton className="w-full"/>
+      </div>;
       return (
         <EditItemScreen
           entityId={z.coerce.number().parse(id)}

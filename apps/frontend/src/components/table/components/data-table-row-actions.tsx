@@ -18,12 +18,14 @@ interface DataTableRowActionsProps<TData> {
   onEdit?: (input: TData) => void;
   onDelete?: (id: number) => void;
   onSelect?: (id: number) => void;
+  onHandled?: (id: number) => void;
 }
 
 export function DataTableRowActions<TData>({
   row,
   onEdit,
   onDelete,
+    onHandled,
 }: DataTableRowActionsProps<TData>) {
   const router = useRouter();
   return (
@@ -62,6 +64,12 @@ export function DataTableRowActions<TData>({
         >
           Share
           <Forward size="16" />
+        </DropdownMenuItem>
+        <DropdownMenuItem
+            onClick={() => onHandled?.(row.original.id)}
+        >
+            Mark as handled
+            <Forward size="16" />
         </DropdownMenuItem>
         {/* @ts-expect-error TODO: fix this */}
         <DropdownMenuItem onClick={() => {

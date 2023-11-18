@@ -21,7 +21,7 @@ import { trpcClient } from "@/features/trpc-client.ts";
 import { selectInvoiceSchema } from "backend/src/db/schema.ts";
 import { InvoiceDetails } from "@/features/InvoiceDetails.tsx";
 import { InvoicePaid } from "@/features/invoice-paid.tsx";
-
+import { Skeleton } from "@/components/ui/skeleton.tsx";
 
 // Create a root route
 export const rootRoute = new RootRoute({ component: Layout });
@@ -40,18 +40,18 @@ const paymentRoute = new Route({
   path: "/invoice/$invoiceId",
   component: ({ useParams }) => {
     const invoice = trpcClient["invoices"].get.useQuery(useParams().invoiceId);
-    if (invoice.isLoading || !invoice.data) return <div className="bg-primary-900">Loading...</div>;
+    if (invoice.isLoading || !invoice.data) return <div className="bg-primary-900"><Skeleton className="w-full mt-5"/></div>;
     return <Invoice invoice={selectInvoiceSchema.parse(invoice.data)} />;
   },
 });
 
-// payment page
+// invoice details page
 const invoiceDetailsRoute = new Route({
   getParentRoute: () => rootRoute,
   path: "/invoice-details/$invoiceId",
   component: ({ useParams }) => {
     const invoice = trpcClient["invoices"].get.useQuery(useParams().invoiceId);
-    if (invoice.isLoading || !invoice.data) return <div className="bg-primary-900">Loading...</div>;
+    if (invoice.isLoading || !invoice.data) return <div className="bg-primary-900"><Skeleton className="w-full mb-5"/></div>;
     return <InvoiceDetails invoice={selectInvoiceSchema.parse(invoice.data)} />;
   },
 });
@@ -62,7 +62,7 @@ const invoicePaidRoute = new Route({
   path: "/invoice-paid/$invoiceId",
   component: ({ useParams }) => {
     const invoice = trpcClient["invoices"].get.useQuery(useParams().invoiceId);
-    if (invoice.isLoading || !invoice.data) return <div className="bg-primary-900">Loading...</div>;
+    if (invoice.isLoading || !invoice.data) return <div className="bg-primary-900"><Skeleton className="w-full mb-5"/></div>;
     return <InvoicePaid invoice={selectInvoiceSchema.parse(invoice.data)} />;
   },
 });
