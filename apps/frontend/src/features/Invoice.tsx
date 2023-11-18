@@ -1,17 +1,18 @@
 import { selectInvoiceSchema } from "backend/src/db/invoices.ts";
 import { QRCode } from 'react-qrcode-logo';
-import { Address, formatUnits } from 'viem'
+import {Address, formatUnits, parseUnits} from 'viem'
 import { useQuery } from "@tanstack/react-query";
 import { ENABLED_TOKENS_GOERLI, getWalletBalance } from "@/features/balance-check.ts";
-import { useAccount } from "wagmi";
+import {useAccount, useContractWrite} from "wagmi";
 import { Button } from "@/components/ui/button.tsx";
 import {Copy, CornerUpLeft} from "lucide-react";
-import { useRouter } from "@tanstack/react-router";
 import { Checkbox } from "@/components/ui/checkbox.tsx";
 import { useEffect, useRef, useState } from "react";
 import { GateFiSDK, GateFiDisplayModeEnum } from "@gatefi/js-sdk";
-import { trpcClient } from "@/features/trpc-client.ts";
 import { Skeleton } from "@/components/ui/skeleton.tsx";
+import { usePrepareContractWrite } from "wagmi";
+import erc20ABI from "backend/src/payment-checker/erc20Abi.json";
+import { useRouter } from "@tanstack/react-router";
 import {Web3Inbox} from "@/features/web3Inbox.tsx";
 
 function ConnectButton() {
@@ -29,12 +30,19 @@ export const Item = (props: { title: string, value: string | number, key: string
 }
 
 export const Invoice = (props: { invoice: selectInvoiceSchema }) => {
-  console.log(props.invoice);
   const router = useRouter()
+  const account = useAccount()
+  const balances = useGetBalances({address: account.address});
+  const [selectedOption, setSelectedOption] = useState('')
 
-  const signature = trpcClient.onrampConfig.useQuery()
+    const { config } = usePrepareContractWrite({
+        address: balances.data?.find(i => i?.token.name === selectedOption)?.token.address as Address,
+        abi: erc20ABI,
+        functionName: 'transfer',
+        args: [props.invoice.wallet, parseUnits(props.invoice.amountDue.toString(), selectedOption === "USDC" ? 6 : 18)  ]
+    })
+    const { write, isSuccess, isLoading } = useContractWrite(config)
 
-  console.log(signature.data);
 
   const list = [
     { name: "Description", value: props.invoice.description },
@@ -98,6 +106,9 @@ export const Invoice = (props: { invoice: selectInvoiceSchema }) => {
     setIsOverlayVisible(true);
   };
 
+    if(!isLoading && isSuccess && props.invoice.status === "paid") {
+        router.navigate({to:`/invoice-paid/${props.invoice.id}`})
+    }
 
   return (
       <>
@@ -110,7 +121,7 @@ export const Invoice = (props: { invoice: selectInvoiceSchema }) => {
           Go Back
         </Button>
           <div
-              className="fixed left-1/2 -translate-x-1/2 max-h-[90vh] max-w-xl p-6 rounded-xl bg-black border-success-400 overflow-auto">
+              className="fixed left-1/2 -translate-x-1/2 max-h-[90vh] w-full max-w-xl p-6 rounded-xl bg-black border-success-400 overflow-auto">
               <div className="flex justify-center mb-2">
                   <QRCode
                       size={300}
@@ -140,17 +151,49 @@ export const Invoice = (props: { invoice: selectInvoiceSchema }) => {
                   })}
               </>
               <div className="flex items-start justify-between mt-8">
-                  <Web3Connect/>
-                  <Button variant="dark" className="text-success-400 bg-base-black" onClick={() => handleOnClick()}>
+                  <ConnectButton/>
+                  <Button variant="dark" id="unlimit-overlay" className="text-success-400 bg-base-black" onClick={() => handleOnClick()}>
                       Fiat Button
                   </Button>
+                  {props.invoice.status === "pending" && (
+                      <Button
+                          disabled={selectedOption === ''}
+                          variant="dark"
+                          className="text-primary-900 bg-success-400"
+                          onClick={() => write?.()}>
+                          Pay
+                      </Button>
+                  )}
+              </div>
+              <div>
+                  {props.invoice.status === "pending" && (
+                      <div className="flex flex-col mt-5 w-full">
+                          {balances.data?.map(i => {
+                              return (
+                                  <div onClick={() => setSelectedOption(i?.token.name ?? "")}
+                                       className={`flex items-center gap-3 p-3 cursor-pointer hover:bg-gray-800 ${selectedOption === i?.token.name ? "bg-gray-700" : ""}`}
+                                       key={i?.token.name}>
+                                      <Checkbox checked={selectedOption === i?.token.name}
+                                                onCheckedChange={() => setSelectedOption(i?.token.name ?? "")}/>
+                                      <div className="relative">
+                                          <img height={30} width={30} src="/images/goerli-logo.png" alt=""
+                                               className="rounded-xl"/>
+                                          <img width={18} height={18}
+                                               className="absolute rounded-full z-10 -bottom-2 -right-2"
+                                               src={i?.token.icon} alt=""/>
+                                      </div>
+                                      <p className="text-success-400">{i?.token.name}</p>
+                                      <p className="text-success-400">{Number(formatUnits(BigInt(i?.balance ?? 0), i?.token.name === "USDC" ? 6 : 18)).toLocaleString()}</p>
+                                  </div>
+                              )
+                          })}
+                      </div>
+                  )}
               </div>
               <div className="flex items-start justify-between mt-8text-success-400">
                   <Web3Inbox/>
               </div>
           </div>
-
-
       </>
 
   );
@@ -186,29 +229,28 @@ export const Web3Connect = () => {
 
 
 export const useGetBalances = (props: {
-  address?: Address;
+    address?: Address;
 }) => {
-  return useQuery({
-    enabled: !!props.address,
-    queryKey: ["balances", props.address, ENABLED_TOKENS_GOERLI],
-    queryFn: async () => {
-      if ( !props.address ) return;
-      const balances = ENABLED_TOKENS_GOERLI.map(async (token) => {
-        if ( !props.address ) return;
-        const balance = await getWalletBalance({ wallet: props.address, erc20: token.address as Address });
-        console.log(balance);
-        return {
-          token,
-          balance
-        }
-      })
+    return useQuery({
+        enabled: !!props.address,
+        queryKey: ["balances", props.address, ENABLED_TOKENS_GOERLI],
+        queryFn: async () => {
+            if (!props.address) return;
+            const balances = ENABLED_TOKENS_GOERLI.map(async (token) => {
+                if (!props.address) return;
+                const balance = await getWalletBalance({wallet: props.address, erc20: token.address as Address});
+                return {
+                    token,
+                    balance
+                }
+            })
 
-      // await Promise.all(balances);
-      const data = await Promise.all(balances);
+            // await Promise.all(balances);
+            const data = await Promise.all(balances);
 
-      // filter out empty balances
-      return data.filter(balance => BigInt(balance?.balance ?? 0) !== BigInt(0));
-    },
-  });
+            // filter out empty balances
+            return data.filter(balance => BigInt(balance?.balance ?? 0) !== BigInt(0));
+        },
+    });
 }
 
