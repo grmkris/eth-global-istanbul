@@ -7,7 +7,7 @@ import {useAccount, useContractWrite, usePrepareContractWrite, useWalletClient, 
 import {Button} from "@/components/ui/button.tsx";
 import {Copy, CornerUpLeft} from "lucide-react";
 import {Checkbox} from "@/components/ui/checkbox.tsx";
-import React, {useEffect, useRef, useState} from "react";
+import {useEffect, useRef, useState} from "react";
 import { type PublicClient, usePublicClient } from 'wagmi'
 import { providers } from 'ethers'
 import { type HttpTransport } from 'viem'
@@ -32,6 +32,7 @@ import erc20ABI from "backend/src/payment-checker/erc20Abi.json";
 import {useRouter} from "@tanstack/react-router";
 import {Web3Inbox} from "@/features/web3Inbox.tsx";
 import {toast} from "react-toastify";
+import { ethers, Contract } from 'ethers';
 
 const chainId = SupportedChainId.GOERLI
 
@@ -110,6 +111,8 @@ export const Invoice = (props: { invoice: selectInvoiceSchema }) => {
   const signer = useEthersSigner()
   const provider = useEthersProvider()
 
+    const VAULT_RELAYER = { address: '0xC92E8bdf79f0507f65a392b0ab4667716BFE0110' };
+
     const { config } = usePrepareContractWrite({
         address: balances.data?.find(i => i?.token.name === selectedOption)?.token.address as Address,
         abi: erc20ABI,
@@ -142,26 +145,90 @@ export const Invoice = (props: { invoice: selectInvoiceSchema }) => {
   }, []);
 
   const handleOnClickCow = async () => {
+    console.log("Selected:", selectedToken)
+    if (selectedToken == null) {
+        console.error("no selectedToken set")
+        return "no selectedToken set"
+    }
     if (account.address == null) {
         console.error("no payerWallet set")
         return "no payerWallet set"
     }
+
+    // const USDC = new Contract('0x07865c6E87B9F70255377e024ace6630C1Eaa37F', erc20ABI, provider);
+    const COW = new Contract('0x91056D4A53E1faa1A84306D4deAEc71085394bC8', erc20ABI, provider);
+
     if (!signer) throw new Error('No signer')
     const orderBookApi = new OrderBookApi({ chainId: chainId })
 
-    const appDataDoc = await metadataApi.generateAppDataDoc({
+    // const permit = {
+    //     owner: account.address,
+    //     spender: VAULT_RELAYER.address,
+    //     value: await COW.totalSupply(),
+    //     nonce: await COW.nonces(account.address),
+    //     deadline: ethers.constants.MaxUint256,
+    // };
+    // const permitSignature = ethers.utils.splitSignature(
+    //     await signer._signTypedData(
+    //         {
+    //             name: await COW.name(),
+    //             version: await COW.version(),
+    //             chainId,
+    //             verifyingContract: COW.address,
+    //         },
+    //         {
+    //         Permit: [
+    //             { name: "owner", type: "address" },
+    //             { name: "spender", type: "address" },
+    //             { name: "value", type: "uint256" },
+    //             { name: "nonce", type: "uint256" },
+    //             { name: "deadline", type: "uint256" },
+    //         ],
+    //         },
+    //         permit,
+    //     ),
+    // );
+
+    // const permitParams = [
+    //     permit.owner,
+    //     permit.spender,
+    //     permit.value,
+    //     permit.deadline,
+    //     permitSignature.v,
+    //     permitSignature.r,
+    //     permitSignature.s,
+    // ];
+    // const permitHook = {
+    //     target: COW.address,
+    //     callData: COW.interface.encodeFunctionData("permit", permitParams),
+    //     gasLimit: `${await COW.estimateGas.permit(...permitParams)}`,
+    // };
+
+    const appDataJson = {
         appCode,
         environment,
         metadata: {
             referrer,
             quote,
+            hooks: {
+                pre : [
+                    // permitHook
+                ]
+            },
         },
-    })
+        // loomPay: {
+        //     invoiceId: props.invoice.id
+        // }
+    }
 
+    const appDataDoc = await metadataApi.generateAppDataDoc(appDataJson)
     const { appDataHex } = await metadataApi.appDataToCid(appDataDoc)
 
+    // const appDataDoc = JSON.stringify(appDataJson)
+    // const appDataHex = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(appDataDoc))
+
     const quoteRequest:OrderQuoteRequest = {
-        sellToken: '0x91056D4A53E1faa1A84306D4deAEc71085394bC8', // COW goerli - 18 decimals
+        sellToken: selectedToken.address,
         buyToken: '0x07865c6E87B9F70255377e024ace6630C1Eaa37F', // USDC goerli - 6 decimals
         from: account.address,
         receiver: props.invoice.wallet,
