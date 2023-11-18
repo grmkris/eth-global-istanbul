@@ -42,56 +42,56 @@ export const Invoice = (props: { invoice: selectInvoiceSchema }) => {
     { name: "Due date", value: props.invoice?.dueDate?.toLocaleString() ?? "" },
   ]
   const overlayInstanceSDK = useRef<GateFiSDK | null>(null);
-const [isOverlayVisible, setIsOverlayVisible] = useState(false);
+  const [isOverlayVisible, setIsOverlayVisible] = useState(false);
 
-useEffect(() => {
-  return () => {
-    overlayInstanceSDK.current?.destroy();
-    overlayInstanceSDK.current = null;
-  };
-}, []);
+  useEffect(() => {
+    return () => {
+      overlayInstanceSDK.current?.destroy();
+      overlayInstanceSDK.current = null;
+    };
+  }, []);
 
-const handleOnClick = () => {
-  if (overlayInstanceSDK.current) {
-    if (isOverlayVisible) {
-      overlayInstanceSDK.current.hide();
-      setIsOverlayVisible(false);
+  const handleOnClick = () => {
+    if (overlayInstanceSDK.current) {
+      if (isOverlayVisible) {
+        overlayInstanceSDK.current.hide();
+        setIsOverlayVisible(false);
+      } else {
+        overlayInstanceSDK.current.show();
+        setIsOverlayVisible(true);
+      }
     } else {
-      overlayInstanceSDK.current.show();
-      setIsOverlayVisible(true);
-    }
-  } else {
-    overlayInstanceSDK.current = new GateFiSDK({
-      merchantId: "b154a828-7274-4949-9643-6a7aa9c8f3b6",
-      displayMode: GateFiDisplayModeEnum.Overlay,
-      nodeSelector: "#unlimit-overlay",
-      isSandbox: true,
-      walletAddress: props.invoice.wallet,
-      email: props.invoice?.payerEmail ?? "dein@joni.com",
-      externalId: props.invoice.id,
-      defaultFiat: {
-        currency: props.invoice.currency ?? "USD",
-        amount: props.invoice?.amountDue.toString() ?? "10",
-      },
-      defaultCrypto: {
-        currency: "USDC"
-      },
-      availableFiat: [
-        "USD",
-        "EUR"
-      ],
-      availableCrypto: [
-        "USDC",
-        "ETH",
-        "USDC_POLYGON"
-      ],
-      walletLock: true,
+      overlayInstanceSDK.current = new GateFiSDK({
+        merchantId: "b154a828-7274-4949-9643-6a7aa9c8f3b6",
+        displayMode: GateFiDisplayModeEnum.Overlay,
+        nodeSelector: "#unlimit-overlay",
+        isSandbox: true,
+        walletAddress: props.invoice.wallet,
+        email: props.invoice?.payerEmail ?? "dein@joni.com",
+        externalId: props.invoice.id,
+        defaultFiat: {
+          currency: props.invoice.currency ?? "USD",
+          amount: props.invoice?.amountDue.toString() ?? "10",
+        },
+        defaultCrypto: {
+          currency: "USDC"
+        },
+        availableFiat: [
+          "USD",
+          "EUR"
+        ],
+        availableCrypto: [
+          "USDC",
+          "ETH",
+          "USDC_POLYGON"
+        ],
+        walletLock: true,
 
-    });
-  }
-  overlayInstanceSDK.current?.show();
-  setIsOverlayVisible(true);
-};
+      });
+    }
+    overlayInstanceSDK.current?.show();
+    setIsOverlayVisible(true);
+  };
 
 
   return (
