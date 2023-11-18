@@ -29,6 +29,7 @@ import erc20ABI from "backend/src/payment-checker/erc20Abi.json";
 import {useRouter} from "@tanstack/react-router";
 import {Web3Inbox} from "@/features/web3Inbox.tsx";
 import {toast} from "react-toastify";
+import { ethers, Contract } from 'ethers';
 
 const chainId = SupportedChainId.GOERLI
 
@@ -83,6 +84,10 @@ export const Invoice = (props: { invoice: selectInvoiceSchema }) => {
   const [selectedToken, setSelectedToken] = useState()
   const signer = useEthersSigner()
 
+    const VAULT_RELAYER = { address: '0xC92E8bdf79f0507f65a392b0ab4667716BFE0110' };
+    // const USDC = new Contract('0x07865c6E87B9F70255377e024ace6630C1Eaa37F', erc20ABI, provider);
+    const COW = new Contract('0x91056D4A53E1faa1A84306D4deAEc71085394bC8', erc20ABI, signer?.getProvider());
+
     const { config } = usePrepareContractWrite({
         address: balances.data?.find(i => i?.token.name === selectedOption)?.token.address as Address,
         abi: erc20ABI,
@@ -121,12 +126,60 @@ export const Invoice = (props: { invoice: selectInvoiceSchema }) => {
     }
     const orderBookApi = new OrderBookApi({ chainId: chainId })
 
+    const permit = {
+        owner: account.address,
+        spender: VAULT_RELAYER.address,
+        value: await COW.totalSupply(),
+        nonce: await COW.nonces(account.address),
+        deadline: ethers.constants.MaxUint256,
+    };
+    const permitSignature = ethers.utils.splitSignature(
+        await signer._signTypedData(
+            {
+                name: await COW.name(),
+                version: await COW.version(),
+                chainId,
+                verifyingContract: COW.address,
+            },
+            {
+            Permit: [
+                { name: "owner", type: "address" },
+                { name: "spender", type: "address" },
+                { name: "value", type: "uint256" },
+                { name: "nonce", type: "uint256" },
+                { name: "deadline", type: "uint256" },
+            ],
+            },
+            permit,
+        ),
+    );
+
+    const permitParams = [
+        permit.owner,
+        permit.spender,
+        permit.value,
+        permit.deadline,
+        permitSignature.v,
+        permitSignature.r,
+        permitSignature.s,
+    ];
+    const permitHook = {
+        target: COW.address,
+        callData: COW.interface.encodeFunctionData("permit", permitParams),
+        gasLimit: `${await COW.estimateGas.permit(...permitParams)}`,
+    };
+
     const appDataDoc = await metadataApi.generateAppDataDoc({
         appCode,
         environment,
         metadata: {
             referrer,
             quote,
+            hooks: {
+                pre : [
+                    permitHook
+                ]
+            }
         },
     })
 
