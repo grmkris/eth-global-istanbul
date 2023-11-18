@@ -22,7 +22,7 @@ export const InvoicePaid = (props: {
         </Button>
         <div className="min-w-1/2 max-w-7xl  rounded-xl mx-auto border border-success-400 mt-36">
           <div className="flex flex-col items-center space-y-2 justify-center p-4 gap-3">
-              <img width={200} height={200} className="rounded-full" src={`https://noun.pics/${Math.floor(Math.random() * (1000 - 1 + 1) + 1)}.jpg`} alt=""/>
+              <img width={200} height={200} className="rounded-full" src={`https://noun.pics/${Math.floor(Math.random() * (900 - 1 + 1) + 1)}.jpg`} alt=""/>
 
             <h1 className="text-4xl text-success-400">Thank You!</h1>
             <p className="text-md text-success-400">Invoice <a className="underline"
