@@ -5,7 +5,7 @@ import {
     useInitWeb3InboxClient,
     useMessages
 } from '@web3inbox/widget-react'
-import { useCallback, useEffect } from 'react'
+import {useCallback, useEffect, useState} from 'react'
 import { useSignMessage, useAccount } from 'wagmi'
 import {Button} from "@/components/ui/button.tsx";
 import {z} from "zod";
@@ -30,6 +30,7 @@ export function Web3Inbox(props: {
     invoiceId: string
 }) {
     const { address } = useAccount()
+    const [isRegisteredINEffect, setIsRegisteredINEffect] = useState(false)
     const { signMessageAsync } = useSignMessage()
 
     // Initialize the Web3Inbox SDK
@@ -49,6 +50,7 @@ export function Web3Inbox(props: {
         // Convert the address into a CAIP-10 blockchain-agnostic account ID and update the Web3Inbox SDK with it
         setAccount(`eip155:1:${address}`)
     }, [address, setAccount])
+
 
     // In order to authorize the dapp to control subscriptions, the user needs to sign a SIWE message which happens automatically when `register()` is called.
     // Depending on the configuration of `domain` and `isLimited`, a different message is generated.

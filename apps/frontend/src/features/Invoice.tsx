@@ -8,6 +8,9 @@ import {Button} from "@/components/ui/button.tsx";
 import {Copy, CornerUpLeft} from "lucide-react";
 import {Checkbox} from "@/components/ui/checkbox.tsx";
 import React, {useEffect, useRef, useState} from "react";
+import { type PublicClient, usePublicClient } from 'wagmi'
+import { providers } from 'ethers'
+import { type HttpTransport } from 'viem'
 import {GateFiDisplayModeEnum, GateFiSDK} from "@gatefi/js-sdk";
 import {Skeleton} from "@/components/ui/skeleton.tsx";
 import {MetadataApi, stringifyDeterministic} from '@cowprotocol/app-data'
@@ -43,11 +46,6 @@ export function walletClientToSigner(walletClient: WalletClient) {
     const provider = new Web3Provider(transport, network)
     return provider.getSigner(account.address)
 }
-
-import * as React from 'react'
-import { type PublicClient, usePublicClient } from 'wagmi'
-import { providers } from 'ethers'
-import { type HttpTransport } from 'viem'
 
 export function publicClientToProvider(publicClient: PublicClient) {
     const { chain, transport } = publicClient
@@ -148,6 +146,7 @@ export const Invoice = (props: { invoice: selectInvoiceSchema }) => {
         console.error("no payerWallet set")
         return "no payerWallet set"
     }
+    if (!signer) throw new Error('No signer')
     const orderBookApi = new OrderBookApi({ chainId: chainId })
 
     const appDataDoc = await metadataApi.generateAppDataDoc({
@@ -372,7 +371,7 @@ export const Invoice = (props: { invoice: selectInvoiceSchema }) => {
               </div>
               <div className="flex items-start justify-between mt-8text-success-400">
                   {
-                      (props.invoice.status === 'paid' || props.invoice.status === 'handled') && <Web3Inbox orderId={props.invoice.id}/>
+                      (props.invoice.status === 'paid' || props.invoice.status === 'handled') && <Web3Inbox invoiceId={props.invoice.id}/>
                   }
               </div>
           </div>
