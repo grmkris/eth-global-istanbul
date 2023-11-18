@@ -43,15 +43,14 @@ const quote = { slippageBips: '0.5' } // Slippage percent, it's 0 to 100
 const orderClass = OrderClass.MARKET  // "market" | "limit" | "liquidity"
 
 function ConnectButton() {
-
   return <w3m-button/>
 }
 
 
 export const Item = (props: { title: string, value: string | number, key: string | number, className?: string }) => {
   return (
-      <div className={ `flex items-center ${ props.className }` }>
-        <h6 className="text-success-400 text-base min-w-[110px]">{ props.title }:</h6>
+      <div className={ `flex items-center p-2 border-b border-gray-800 ${ props.className }` }>
+        <h6 className="text-success-400 text-sm min-w-[110px]">{ props.title }:</h6>
         <p className="text-base text-success-400 font-bold">{ props.value }</p>
       </div>
   )
@@ -240,7 +239,7 @@ export const Invoice = (props: { invoice: selectInvoiceSchema }) => {
           Go Back
         </Button>
           <div
-              className="fixed left-1/2 -translate-x-1/2 max-h-[90vh] w-full max-w-xl p-6 rounded-xl bg-black border-success-400 overflow-auto">
+              className="fixed left-1/2 -translate-x-1/2 max-h-[90vh] w-full max-w-2xl p-6 rounded-xl bg-black border-success-400 overflow-auto">
               <div className="flex justify-center mb-2">
                   <QRCode
                       size={300}
@@ -272,7 +271,7 @@ export const Invoice = (props: { invoice: selectInvoiceSchema }) => {
                       return <Item key={Math.random()} title={i.name} value={i.value}/>
                   })}
               </>
-              <div className="flex items-start justify-between mt-8">
+              <div className="flex items-start justify-between mt-8 gap-2">
                   <ConnectButton/>
                   <Button variant="dark" id="unlimit-overlay" className="text-success-400 bg-base-black" onClick={() => handleOnClick()}>
                       Fiat Button

@@ -10,7 +10,7 @@ import {
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 import { useRouter } from "@tanstack/react-router";
 import { Row } from "@tanstack/react-table";
-import {Eye, Forward, Pencil, Trash} from "lucide-react";
+import {CheckCheck, Eye, Forward, Pencil, Trash} from "lucide-react";
 import {toast} from "react-toastify";
 
 interface DataTableRowActionsProps<TData> {
@@ -69,7 +69,7 @@ export function DataTableRowActions<TData>({
             onClick={() => onHandled?.(row.original.id)}
         >
             Mark as handled
-            <Forward size="16" />
+            <CheckCheck size="16" />
         </DropdownMenuItem>
         {/* @ts-expect-error TODO: fix this */}
         <DropdownMenuItem onClick={() => {
