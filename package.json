@@ -21,7 +21,7 @@
     "prettier-plugin-tailwindcss": "^0.5.7"
   },
   "dependencies": {
-    "alchemy-sdk": "^3.0.0",
+    "@cowprotocol/app-data": "^1.2.0",
     "@cowprotocol/cow-sdk": "^4.0.3"
   }
 }

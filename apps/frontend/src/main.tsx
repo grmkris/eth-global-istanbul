@@ -18,75 +18,11 @@ import { Payment } from "@/features/Pay.tsx";
 import { trpcClient } from "@/features/trpc-client.ts";
 import { selectInvoiceSchema } from "backend/src/db/schema.ts";
 
-// Create a root route
-export const rootRoute = new RootRoute({ component: Layout });
-
-const indexRootRoute = new Route({
-  getParentRoute: () => rootRoute,
-  path: "/",
-  component: () => {
-    return (
-      <>
-        <h1>Home</h1>
-      </>
-    );
-  },
-});
-
-// landing page route
-const landingRoute = new Route({
-  getParentRoute: () => rootRoute,
-  path: "/landing",
-  component: () => {
-    return <Landing />;
-  },
-});
-
-// cow poc page route
-const CowPocRoute = new Route({
-  getParentRoute: () => rootRoute,
-  path: "/cow-poc",
-  component: () => {
-    return <CoWpoc />;
-  },
-});
-
-// payment page
-const paymentRoute = new Route({
-  getParentRoute: () => rootRoute,
-  path: "/pay/$invoiceId",
-  component: ({ useParams }) => {
-    const invoice = trpcClient["invoices"].get.useQuery(useParams().invoiceId);
-    if (invoice.isLoading || !invoice.data) return <div className="bg-primary-900">Loading...</div>;
-    return <Payment invoice={selectInvoiceSchema.parse(invoice.data)} />;
-  },
-});
-
-// Create the route tree using your root and dynamically generated entity routes
-const routeTree = rootRoute.addChildren([
-  landingRoute,
-  CowPocRoute,
-  indexRootRoute,
-  paymentRoute,
-  ...generateAppConfig({ rootRoute }),
-]);
-
-// Create the router using your route tree
-const router = new Router({ routeTree });
-
-ReactDOM.createRoot(document.getElementById("root")!).render(
-  <StrictMode>
-    <TrpcProvider>
-      <AccountAbstractionProvider>
-        <RouterProvider router={router} />
-      </AccountAbstractionProvider>
-    </TrpcProvider>
-  </StrictMode>,
-);
-
 import { SigningScheme, SigningResult, OrderBookApi, OrderQuoteSideKindBuy, OrderSigningUtils, SupportedChainId, OrderParameters, UnsignedOrder, OrderKind, OrderCreation } from '@cowprotocol/cow-sdk'
 import { Web3Provider } from '@ethersproject/providers'
+import { MetadataApi } from '@cowprotocol/app-data'
 import React, { useState, useEffect } from 'react';
+
 
 declare global {
     interface Window {
@@ -94,10 +30,33 @@ declare global {
     }
 }
 
+export const metadataApi = new MetadataApi()
+const appCode = 'LoomPay'
+const environment = 'hackathon'
+const referrer = { address: `REFERRER_ADDRESS` }
+
+const quote = { slippageBips: '0.5' } // Slippage percent, it's 0 to 100
+const orderClass = { orderClass: 'market' } // "market" | "limit" | "liquidity"
+
 const account = '0x40D73aa5cA202c7c751F71E158BdAb30Eab7347D'
 const chainId = 5 // Goerli
 const provider = new Web3Provider(window.ethereum)
 const signer = provider.getSigner()
+
+const appDataDoc = await metadataApi.generateAppDataDoc({
+    appCode,
+    environment,
+    metadata: {
+        referrer,
+        quote,
+        orderClass
+    },
+})
+
+
+console.log(appDataDoc)
+
+const { cid, appDataHex } = await metadataApi.appDataToCid(appDataDoc)
 
 const quoteRequest = {
     sellToken: '0x07865c6E87B9F70255377e024ace6630C1Eaa37F', // USDC goerli - 6 decimals
@@ -106,8 +65,8 @@ const quoteRequest = {
     receiver: account,
     buyAmountAfterFee: (1 * 10 ** 18).toString(), // 1 COW
     kind: OrderQuoteSideKindBuy.BUY,
-    appData: '{"appCode":"dStripe","metadata":{"hooks":{"version":"0.1.0"}},"version":"0.10.0"}',
-    appDataHash: "0x0629b57f996d59b7a06b041e712d9f55033ce042795a08513b5a0aa9e8355966",
+    // appData: appDataDoc,
+    appDataHash: appDataHex,
 }
 
 const orderBookApi = new OrderBookApi({ chainId: SupportedChainId.GOERLI })
@@ -193,3 +152,70 @@ export const CoWpoc = () => {
         </>
     );
 }
+
+
+// Create a root route
+export const rootRoute = new RootRoute({ component: Layout });
+
+const indexRootRoute = new Route({
+  getParentRoute: () => rootRoute,
+  path: "/",
+  component: () => {
+    return (
+      <>
+        <h1>Home</h1>
+      </>
+    );
+  },
+});
+
+// landing page route
+const landingRoute = new Route({
+  getParentRoute: () => rootRoute,
+  path: "/landing",
+  component: () => {
+    return <Landing />;
+  },
+});
+
+// cow poc page route
+const CowPocRoute = new Route({
+  getParentRoute: () => rootRoute,
+  path: "/cow-poc",
+  component: () => {
+    return <CoWpoc />;
+  },
+});
+
+// payment page
+const paymentRoute = new Route({
+  getParentRoute: () => rootRoute,
+  path: "/pay/$invoiceId",
+  component: ({ useParams }) => {
+    const invoice = trpcClient["invoices"].get.useQuery(useParams().invoiceId);
+    if (invoice.isLoading || !invoice.data) return <div className="bg-primary-900">Loading...</div>;
+    return <Payment invoice={selectInvoiceSchema.parse(invoice.data)} />;
+  },
+});
+
+// Create the route tree using your root and dynamically generated entity routes
+const routeTree = rootRoute.addChildren([
+  landingRoute,
+  CowPocRoute,
+  indexRootRoute,
+  paymentRoute,
+  ...generateAppConfig({ rootRoute }),
+]);
+
+// Create the router using your route tree
+const router = new Router({ routeTree });
+
+ReactDOM.createRoot(document.getElementById("root")!).render(
+  <StrictMode>
+    <TrpcProvider>
+      <AccountAbstractionProvider>
+        <RouterProvider router={router} />
+      </AccountAbstractionProvider>
+    </TrpcProvider>
+  </StrictMode>,
+);
