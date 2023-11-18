@@ -1,23 +1,85 @@
-import { selectInvoiceSchema } from "backend/src/db/invoices.ts";
-import { QRCode } from 'react-qrcode-logo';
+import {selectInvoiceSchema} from "backend/src/db/invoices.ts";
+import {QRCode} from 'react-qrcode-logo';
 import {Address, formatUnits, parseUnits} from 'viem'
-import { useQuery } from "@tanstack/react-query";
-import { ENABLED_TOKENS_GOERLI, getWalletBalance } from "@/features/balance-check.ts";
-import {useAccount, useContractWrite} from "wagmi";
-import { Button } from "@/components/ui/button.tsx";
+import {useQuery} from "@tanstack/react-query";
+import {ENABLED_TOKENS_GOERLI, getWalletBalance} from "@/features/balance-check.ts";
+import {useAccount, useContractWrite, usePrepareContractWrite, useWalletClient, WalletClient} from "wagmi";
+import {Button} from "@/components/ui/button.tsx";
 import {Copy, CornerUpLeft} from "lucide-react";
-import { Checkbox } from "@/components/ui/checkbox.tsx";
-import { useEffect, useRef, useState } from "react";
-import { GateFiSDK, GateFiDisplayModeEnum } from "@gatefi/js-sdk";
-import { Skeleton } from "@/components/ui/skeleton.tsx";
-import { MetadataApi, stringifyDeterministic } from '@cowprotocol/app-data'
+import {Checkbox} from "@/components/ui/checkbox.tsx";
+import React, {useEffect, useRef, useState} from "react";
+import {GateFiDisplayModeEnum, GateFiSDK} from "@gatefi/js-sdk";
+import {Skeleton} from "@/components/ui/skeleton.tsx";
+import {MetadataApi, stringifyDeterministic} from '@cowprotocol/app-data'
 // Sorry, it's a magic, we should import it to make MetadataApi work
-import { OrderClass, OrderQuoteRequest, SigningScheme, OrderBookApi, OrderQuoteSideKindBuy, OrderSigningUtils, SupportedChainId, UnsignedOrder, OrderKind, OrderCreation } from '@cowprotocol/cow-sdk'
-import { Web3Provider } from '@ethersproject/providers'
+import {
+    OrderBookApi,
+    OrderClass,
+    OrderCreation,
+    OrderKind,
+    OrderQuoteRequest,
+    OrderQuoteSideKindBuy,
+    OrderSigningUtils,
+    SigningScheme,
+    SupportedChainId,
+    UnsignedOrder
+} from '@cowprotocol/cow-sdk'
+import {Web3Provider} from '@ethersproject/providers'
+import erc20ABI from "backend/src/payment-checker/erc20Abi.json";
+import {useRouter} from "@tanstack/react-router";
+import {Web3Inbox} from "@/features/web3Inbox.tsx";
+import {toast} from "react-toastify";
 
 const chainId = SupportedChainId.GOERLI
-const provider = new Web3Provider(window.ethereum)
-const signer = provider.getSigner()
+
+
+export function walletClientToSigner(walletClient: WalletClient) {
+    const { account, chain, transport } = walletClient
+    const network = {
+        chainId: chain.id,
+        name: chain.name,
+        ensAddress: chain.contracts?.ensRegistry?.address,
+    }
+    const provider = new Web3Provider(transport, network)
+    return provider.getSigner(account.address)
+}
+
+import * as React from 'react'
+import { type PublicClient, usePublicClient } from 'wagmi'
+import { providers } from 'ethers'
+import { type HttpTransport } from 'viem'
+
+export function publicClientToProvider(publicClient: PublicClient) {
+    const { chain, transport } = publicClient
+    const network = {
+        chainId: chain.id,
+        name: chain.name,
+        ensAddress: chain.contracts?.ensRegistry?.address,
+    }
+    if (transport.type === 'fallback')
+        return new providers.FallbackProvider(
+            (transport.transports as ReturnType<HttpTransport>[]).map(
+                ({ value }) => new providers.JsonRpcProvider(value?.url, network),
+            ),
+        )
+    return new providers.JsonRpcProvider(transport.url, network)
+}
+
+/** Hook to convert a viem Public Client to an ethers.js Provider. */
+export function useEthersProvider({ chainId }: { chainId?: number } = {}) {
+    const publicClient = usePublicClient({ chainId })
+    return React.useMemo(() => publicClientToProvider(publicClient), [publicClient])
+}
+
+
+/** Hook to convert a viem Wallet Client to an ethers.js Signer. */
+export function useEthersSigner({ chainId }: { chainId?: number } = {}) {
+    const { data: walletClient } = useWalletClient({ chainId })
+    return React.useMemo(
+        () => (walletClient ? walletClientToSigner(walletClient) : undefined),
+        [walletClient],
+    )
+}
 
 export const metadataApi = new MetadataApi()
 const appCode = 'LoomPay'
@@ -26,11 +88,6 @@ const referrer = { address: `0x40D73aa5cA202c7c751F71E158BdAb30Eab7347D` }
 
 const quote = { slippageBips: '0.5' } // Slippage percent, it's 0 to 100
 const orderClass = OrderClass.MARKET  // "market" | "limit" | "liquidity"
-import { usePrepareContractWrite } from "wagmi";
-import erc20ABI from "backend/src/payment-checker/erc20Abi.json";
-import { useRouter } from "@tanstack/react-router";
-import {Web3Inbox} from "@/features/web3Inbox.tsx";
-import {toast} from "react-toastify";
 
 function ConnectButton() {
   return <w3m-button/>
@@ -51,6 +108,9 @@ export const Invoice = (props: { invoice: selectInvoiceSchema }) => {
   const account = useAccount()
   const balances = useGetBalances({address: account.address});
   const [selectedOption, setSelectedOption] = useState('')
+  const [selectedToken, setSelectedToken] = useState()
+  const signer = useEthersSigner()
+  const provider = useEthersProvider()
 
     const { config } = usePrepareContractWrite({
         address: balances.data?.find(i => i?.token.name === selectedOption)?.token.address as Address,
@@ -73,6 +133,8 @@ export const Invoice = (props: { invoice: selectInvoiceSchema }) => {
   ]
   const overlayInstanceSDK = useRef<GateFiSDK | null>(null);
   const [isOverlayVisible, setIsOverlayVisible] = useState(false);
+  const [cowSwapOrder, setCowSwapOrder] = useState<string | undefined>();
+  const cowSwapStatus = useCowSwapOrderStatus({orderId: cowSwapOrder});
 
   useEffect(() => {
     return () => {
@@ -161,6 +223,7 @@ export const Invoice = (props: { invoice: selectInvoiceSchema }) => {
     }
     const orderId = await orderBookApi.sendOrder(orderCreation);
     const order = await orderBookApi.getOrder(orderId);
+    setCowSwapOrder(orderId);
     console.log("Order", JSON.stringify(order, null, 2))
   }
 
@@ -263,7 +326,7 @@ export const Invoice = (props: { invoice: selectInvoiceSchema }) => {
                   <Button variant="dark" id="unlimit-overlay" className="text-success-400 bg-base-black" onClick={() => handleOnClick()}>
                       Fiat Button
                   </Button>
-                  <Button variant="dark" className="text-success-400 bg-base-black" onClick={() => handleOnClickCow()}>
+                  <Button variant="dark" className="text-success-400 bg-base-black" disabled={cowSwapStatus.data && cowSwapStatus.data?.status !== 'fulfilled'} onClick={() => handleOnClickCow()}>
                       Cow Button
                   </Button>
                   {props.invoice.status === "pending" && (
@@ -281,11 +344,17 @@ export const Invoice = (props: { invoice: selectInvoiceSchema }) => {
                       <div className="flex flex-col mt-5 w-full">
                           {balances.data?.map(i => {
                               return (
-                                  <div onClick={() => setSelectedOption(i?.token.name ?? "")}
+                                  <div onClick={() => {
+                                      setSelectedOption(i?.token.name ?? "")
+                                      setSelectedToken(i?.token)
+                                  }}
                                        className={`flex items-center gap-3 p-3 cursor-pointer hover:bg-gray-800 ${selectedOption === i?.token.name ? "bg-gray-700" : ""}`}
                                        key={i?.token.name}>
                                       <Checkbox checked={selectedOption === i?.token.name}
-                                                onCheckedChange={() => setSelectedOption(i?.token.name ?? "")}/>
+                                                onCheckedChange={() => {
+                                                    setSelectedOption(i?.token.name ?? "")
+                                                    setSelectedToken(i?.token)
+                                                }}/>
                                       <div className="relative">
                                           <img height={30} width={30} src="/images/goerli-logo.png" alt=""
                                                className="rounded-xl"/>
@@ -303,7 +372,7 @@ export const Invoice = (props: { invoice: selectInvoiceSchema }) => {
               </div>
               <div className="flex items-start justify-between mt-8text-success-400">
                   {
-                      (props.invoice.status === 'paid' || props.invoice.status === 'handled') && <Web3Inbox/>
+                      (props.invoice.status === 'paid' || props.invoice.status === 'handled') && <Web3Inbox orderId={props.invoice.id}/>
                   }
               </div>
           </div>
@@ -339,3 +408,17 @@ export const useGetBalances = (props: {
     });
 }
 
+
+const useCowSwapOrderStatus = (props: {
+    orderId?: string;
+}) => {
+    return useQuery({
+        enabled: !!props.orderId,
+        queryKey: ["order", props.orderId],
+        queryFn: async () => {
+            if (!props.orderId) return;
+            const orderBookApi = new OrderBookApi({ chainId: chainId })
+            return await orderBookApi.getOrder(props.orderId);
+        },
+    });
+}

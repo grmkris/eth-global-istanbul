@@ -28,7 +28,7 @@ export const MessageSchema = z.object({
 
 
 export function Web3Inbox(props: {
-    orderId: string
+    invoiceId: string
 }) {
     const { address } = useAccount()
     const { signMessageAsync } = useSignMessage()
@@ -82,7 +82,7 @@ export function Web3Inbox(props: {
         const parsed = MessageSchema.parse(message)
         return parsed
     }).filter((message) => {
-        return message.message.orderId === props.orderId
+        return message.message.orderId === props.invoiceId
     })
 
     console.log("helloweb3inbox", {
