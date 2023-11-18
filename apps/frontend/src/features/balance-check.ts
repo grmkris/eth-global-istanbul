@@ -14,7 +14,7 @@ export const ENABLED_TOKENS_GOERLI = [
 
 export const viemPublic = createPublicClient({
     chain: goerli,
-    transport: http()
+    transport: http("https://goerli.infura.io/v3/53f3337eeacb44089e2285462c9e80d6")
 })
 
 
