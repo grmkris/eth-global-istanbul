@@ -21,7 +21,6 @@ import { InvoiceDetails } from "@/features/InvoiceDetails.tsx";
 import { InvoicePaid } from "@/features/invoice-paid.tsx";
 import { Skeleton } from "@/components/ui/skeleton.tsx";
 
-
 // Create a root route
 export const rootRoute = new RootRoute({ component: Layout });
 
