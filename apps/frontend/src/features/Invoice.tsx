@@ -12,10 +12,7 @@ import { GateFiSDK, GateFiDisplayModeEnum } from "@gatefi/js-sdk";
 import { Skeleton } from "@/components/ui/skeleton.tsx";
 import { MetadataApi, stringifyDeterministic } from '@cowprotocol/app-data'
 // Sorry, it's a magic, we should import it to make MetadataApi work
-import { keccak256, toUtf8Bytes } from 'ethers/lib/utils'
-import { OrderClass, OrderQuoteRequest, SigningScheme, SigningResult, OrderBookApi, OrderQuoteSideKindBuy, OrderSigningUtils, SupportedChainId, OrderParameters, UnsignedOrder, OrderKind, OrderCreation } from '@cowprotocol/cow-sdk'
-import { log } from "console";
-mport {toast} from "react-toastify";
+import { OrderClass, OrderQuoteRequest, SigningScheme, OrderBookApi, OrderQuoteSideKindBuy, OrderSigningUtils, SupportedChainId, UnsignedOrder, OrderKind, OrderCreation } from '@cowprotocol/cow-sdk'
 import { Web3Provider } from '@ethersproject/providers'
 
 const chainId = SupportedChainId.GOERLI
@@ -33,6 +30,7 @@ import { usePrepareContractWrite } from "wagmi";
 import erc20ABI from "backend/src/payment-checker/erc20Abi.json";
 import { useRouter } from "@tanstack/react-router";
 import {Web3Inbox} from "@/features/web3Inbox.tsx";
+import {toast} from "react-toastify";
 
 function ConnectButton() {
 
