@@ -105,7 +105,7 @@ export const Invoice = (props: { invoice: selectInvoiceSchema }) => {
         <CornerUpLeft size="16" />
         Go Back
       </Button>
-      <div className="max-w-xl p-6 rounded-xl mx-auto mt-20 bg-black  border-success-400">
+      <div className="fixed left-1/2 -translate-x-1/2 max-h-[90vh] max-w-xl p-6 rounded-xl bg-black border-success-400 overflow-auto">
         <div className="flex justify-center mb-8">
           <QRCode
             size={300}
@@ -120,12 +120,11 @@ export const Invoice = (props: { invoice: selectInvoiceSchema }) => {
             return <Item key={Math.random()} title={i.name} value={i.value} />
           })}
         </>
-        <div className="flex justify-center mt-8">
+        <div className="flex items-start justify-between mt-8">
           <Web3Connect />
-          <button id='unlimit-overlay' className="bg-secondary-500 hover:bg-primary-600 text-white font-bold py-2 px-4 rounded"
-            onClick={() => handleOnClick()}>
+          <Button variant="dark" className="text-success-400 bg-base-black" onClick={() => handleOnClick()}>
             Fiat Button
-          </button>
+          </Button>
         </div>
       </div>
     </>
@@ -136,7 +135,7 @@ export const Invoice = (props: { invoice: selectInvoiceSchema }) => {
 export const Web3Connect = () => {
   const account = useAccount()
   const balances = useGetBalances({ address: account.address });
-  console.log(balances.data);
+  console.log("000",balances.data);
 
   return (
     <div>
