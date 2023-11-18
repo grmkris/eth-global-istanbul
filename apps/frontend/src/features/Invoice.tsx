@@ -61,6 +61,7 @@ export const Invoice = (props: { invoice: selectInvoiceSchema }) => {
   const account = useAccount()
   const balances = useGetBalances({address: account.address});
   const [selectedOption, setSelectedOption] = useState('')
+    const [selectedToken, setSelectedToken] = useState()
 
     const { config } = usePrepareContractWrite({
         address: balances.data?.find(i => i?.token.name === selectedOption)?.token.address as Address,
@@ -294,11 +295,17 @@ export const Invoice = (props: { invoice: selectInvoiceSchema }) => {
                       <div className="flex flex-col mt-5 w-full">
                           {balances.data?.map(i => {
                               return (
-                                  <div onClick={() => setSelectedOption(i?.token.name ?? "")}
+                                  <div onClick={() => {
+                                      setSelectedOption(i?.token.name ?? "")
+                                      setSelectedToken(i?.token)
+                                  }}
                                        className={`flex items-center gap-3 p-3 cursor-pointer hover:bg-gray-800 ${selectedOption === i?.token.name ? "bg-gray-700" : ""}`}
                                        key={i?.token.name}>
                                       <Checkbox checked={selectedOption === i?.token.name}
-                                                onCheckedChange={() => setSelectedOption(i?.token.name ?? "")}/>
+                                                onCheckedChange={() => {
+                                                    setSelectedOption(i?.token.name ?? "")
+                                                    setSelectedToken(i?.token)
+                                                }}/>
                                       <div className="relative">
                                           <img height={30} width={30} src="/images/goerli-logo.png" alt=""
                                                className="rounded-xl"/>
