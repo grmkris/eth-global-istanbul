@@ -141,7 +141,7 @@ export function Web3Inbox(props: {
                                             <div className="">You are subscribed</div>
                                             {filteredMessages[0] ?
                                                 <div className="flex flex-col gap-3">
-                                                    <h1>Messages:</h1>
+                                                    <h1 className="text-base text-center">Messages from seller:</h1>
                                                     <div className="text-base text-center">{JSON.stringify(filteredMessages[0].message.title)}</div>
                                                     <div className="text-sm text-center">{JSON.stringify(filteredMessages[0].message.url)}</div>
                                                     <div className="text-sm text-center">{JSON.stringify(filteredMessages[0].message.body)}</div>
