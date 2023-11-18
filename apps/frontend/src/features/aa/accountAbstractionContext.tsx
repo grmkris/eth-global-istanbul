@@ -277,7 +277,7 @@ const AccountAbstractionProvider = ({
     queryFn: async () => {
       if (!safeSelected) throw new Error("safeSelected is undefined");
       const balance = await web3Provider?.getBalance(safeSelected);
-      return balance?.toString();
+      return balance?.toString() ?? "0";
     },
   });
 
