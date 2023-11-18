@@ -7,7 +7,7 @@ import {useAccount, useContractWrite, usePrepareContractWrite, useWalletClient, 
 import {Button} from "@/components/ui/button.tsx";
 import {Copy, CornerUpLeft} from "lucide-react";
 import {Checkbox} from "@/components/ui/checkbox.tsx";
-import React, {useEffect, useRef, useState} from "react";
+import {useEffect, useRef, useState} from "react";
 import { type PublicClient, usePublicClient } from 'wagmi'
 import { providers } from 'ethers'
 import { type HttpTransport } from 'viem'
@@ -92,11 +92,11 @@ function ConnectButton() {
 }
 
 
-export const Item = (props: { title: string, value: string | number, key: string | number, className?: string }) => {
+export const Item = (props: { title: string, value: string | number | undefined, key?: string | number, className?: string, sm?: boolean }) => {
   return (
-      <div className={ `flex items-center p-2 border-b border-gray-800 ${ props.className }` }>
+      <div className={ `flex items-center p-2 border-b border-gray-800 ${ props.className } ${props.sm ? "justify-between" : ""}` }>
         <h6 className="text-success-400 text-sm min-w-[110px]">{ props.title }:</h6>
-        <p className="text-base text-success-400 font-bold">{ props.value }</p>
+        <p className={`${props.sm ? "text-xs" : "text-base"}  text-success-400 font-bold`}>{ props.value }</p>
       </div>
   )
 }
@@ -261,6 +261,9 @@ export const Invoice = (props: { invoice: selectInvoiceSchema }) => {
           "USDC_POLYGON"
         ],
         walletLock: true,
+        fiatCurrencyLock: true,
+        cryptoCurrencyLock: true,
+        fiatAmountLock: true,
 
       });
     }

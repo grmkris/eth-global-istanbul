@@ -25,7 +25,7 @@ export const AddItemScreen = (props: {
 
   if (props.entityName === 'invoices') {
     return (
-        <div className="w-full max-w-xl rounded-lg bg-primary-900 shadow-lg">
+        <div className="w-full max-w-2xl rounded-lg bg-primary-900 shadow-lg">
           <AutoForm
               className="text-success-400"
               formSchema={props.itemSchema} onSubmit={addItem.mutate}
