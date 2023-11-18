@@ -233,6 +233,9 @@ export const Invoice = (props: { invoice: selectInvoiceSchema }) => {
           "USDC_POLYGON"
         ],
         walletLock: true,
+        fiatCurrencyLock: true,
+        cryptoCurrencyLock: true,
+        fiatAmountLock: true,
 
       });
     }
