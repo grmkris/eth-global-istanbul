@@ -5,12 +5,12 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 import { useRouter } from "@tanstack/react-router";
 import { Row } from "@tanstack/react-table";
+import {Eye, Forward, Pencil, Trash} from "lucide-react";
 
 interface DataTableRowActionsProps<TData> {
   row: Row<TData>;
@@ -39,16 +39,18 @@ export function DataTableRowActions<TData>({
       <DropdownMenuContent align="end" className="w-[160px]">
         <DropdownMenuItem onClick={() => onEdit?.(row.original)}>
           Edit
+          <Pencil size="16" />
         </DropdownMenuItem>
          {/*TODO: fix this redirection */}
         <DropdownMenuItem
           onClick={() =>
             router.navigate({
-              to: `/invoice/${row.original.id}`,
+              to: `/invoice-details/${row.original.id}`,
             })
           }
         >
           View
+          <Eye size="16" />
         </DropdownMenuItem>
         <DropdownMenuItem
           onClick={() =>
@@ -58,11 +60,12 @@ export function DataTableRowActions<TData>({
           }
         >
           Share
+          <Forward size="16" />
         </DropdownMenuItem>
         {/* @ts-expect-error TODO: fix this */}
         <DropdownMenuItem onClick={() => onDelete?.(row.original.id)}>
           Delete
-          <DropdownMenuShortcut>⌘⌫</DropdownMenuShortcut>
+          <Trash size="16" />
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
