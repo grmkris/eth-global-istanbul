@@ -1,9 +1,16 @@
 import { selectInvoiceSchema } from "backend/src/db/invoices.ts";
 import { QRCode } from 'react-qrcode-logo';
-import { formatUnits } from 'viem'
+import {Address, formatUnits} from 'viem'
+import {useQuery} from "@tanstack/react-query";
+import {ENABLED_TOKENS_GOERLI, getWalletBalance} from "@/features/balance-check.ts";
+import {useAccount} from "wagmi";
 import {Button} from "@/components/ui/button.tsx";
 import {ArrowLeft} from "lucide-react";
 import {useRouter} from "@tanstack/react-router";
+
+function ConnectButton() {
+    return <w3m-button />
+}
 
 export const Item = (props: {title: string, value: string | number, key: string | number, className?: string}) => {
     return (
@@ -13,9 +20,10 @@ export const Item = (props: {title: string, value: string | number, key: string 
         </div>
     )
 }
+
 export const Invoice = (props: { invoice: selectInvoiceSchema }) => {
-  const router = useRouter();
   console.log(props.invoice);
+    const router = useRouter();
 
   const list = [
     {name: "ID", value: props.invoice.id},
@@ -47,13 +55,16 @@ export const Invoice = (props: { invoice: selectInvoiceSchema }) => {
                       fgColor="#9dfc7c"
                       qrStyle="dots"
                       eyeRadius={50}
-                      value={`https://metamask.app.link/send/${props.invoice.payerWallet}@05/transfer?address=${props.invoice.wallet}&uint256=${formatUnits(BigInt(props.invoice.amountDue), 6)}`}/>
+                      value={`https://metamask.app.link/send/${props.invoice.payerWallet}@05/transfer?address=${props.invoice.wallet}&uint256=${formatUnits(BigInt(props.invoice.amountDue), 6)}`} />
               </div>
               <>
                   {list.map(i => {
-                      return <Item key={Math.random()} title={i.name} value={i.value}/>
+                      return <Item key={Math.random()} title={i.name} value={i.value} />
                   })}
               </>
+              <div className="flex justify-center mt-8">
+                  <Web3Connect/>
+              </div>
           </div>
       </>
   );
