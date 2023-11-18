@@ -7,6 +7,7 @@ import { useAccount } from "wagmi";
 import { Button } from "@/components/ui/button.tsx";
 import { CornerUpLeft } from "lucide-react";
 import { useRouter } from "@tanstack/react-router";
+import { Checkbox } from "@/components/ui/checkbox.tsx";
 
 function ConnectButton() {
     return <w3m-button/>
@@ -62,7 +63,7 @@ export const Invoice = (props: { invoice: selectInvoiceSchema }) => {
                         return <Item key={Math.random()} title={i.name} value={i.value}/>
                     })}
                 </>
-                <div className="flex justify-center mt-8">
+                <div className="flex mt-8">
                     <Web3Connect/>
                 </div>
             </div>
@@ -72,11 +73,31 @@ export const Invoice = (props: { invoice: selectInvoiceSchema }) => {
 };
 
 export const Web3Connect = () => {
-    const account = useAccount()
-    const balances = useGetBalances({address: account.address});
+  const account = useAccount()
+  const balances = useGetBalances({address: account.address});
 
-    console.log(balances.data);
-    return <ConnectButton/>
+  console.log("balances.data", balances.data);
+
+  return (
+    <div>
+      <ConnectButton/>
+      <div className="flex flex-col gap-6 mt-5 w-full">
+        {balances.data?.map(i => {
+          return (
+            <div className="flex items-center gap-3" key={i?.token.name}>
+              <Checkbox />
+              <div className="relative">
+                  <img height={30} width={30} src="/images/goerli-logo.png" alt="" className="rounded-xl"/>
+                  <img width={18} height={18} className="absolute rounded-full z-10 -bottom-2 -right-2" src={i?.token.icon} alt=""/>
+              </div>
+              <p className="text-success-400">{i?.token.name}</p>
+              <p className="text-success-400">{Number(formatUnits(BigInt(i?.balance), i?.token.name === "USDC" ? 6 : 18)).toLocaleString()}</p>
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
 }
 
 
@@ -91,7 +112,6 @@ export const useGetBalances = (props: {
             const balances = ENABLED_TOKENS_GOERLI.map(async (token) => {
                 if (!props.address) return;
                 const balance = await getWalletBalance({wallet: props.address, erc20: token.address as Address});
-                console.log(balance);
                 return {
                     token,
                     balance
@@ -100,9 +120,11 @@ export const useGetBalances = (props: {
 
             // await Promise.all(balances);
             const data = await Promise.all(balances);
+            console.log("data", data)
 
             // filter out empty balances
             return data.filter(balance => balance?.balance !== BigInt(0));
+            // return data;
         },
     });
 }
