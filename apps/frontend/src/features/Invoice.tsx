@@ -5,7 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import { ENABLED_TOKENS_GOERLI, getWalletBalance } from "@/features/balance-check.ts";
 import { useAccount } from "wagmi";
 import { Button } from "@/components/ui/button.tsx";
-import { CornerUpLeft } from "lucide-react";
+import {Copy, CornerUpLeft} from "lucide-react";
 import { useRouter } from "@tanstack/react-router";
 import { Checkbox } from "@/components/ui/checkbox.tsx";
 import { useEffect, useRef, useState } from "react";
@@ -31,14 +31,12 @@ export const Invoice = (props: { invoice: selectInvoiceSchema }) => {
   const router = useRouter()
 
   const list = [
-    { name: "ID", value: props.invoice.id },
     { name: "Description", value: props.invoice.description },
     { name: "Payer Email", value: props.invoice?.payerEmail ?? "" },
     { name: "Payer Name", value: props.invoice?.payerName ?? "" },
     { name: "Payer Wallet", value: props.invoice?.payerWallet ?? "" },
     { name: "Amount", value: props.invoice?.amountDue ?? 0 },
     { name: "Currency", value: props.invoice.currency ?? "" },
-    { name: "Wallet", value: props.invoice.wallet },
     { name: "Status", value: props.invoice.status },
     { name: "Due date", value: props.invoice?.dueDate?.toLocaleString() ?? "" },
   ]
@@ -105,8 +103,8 @@ export const Invoice = (props: { invoice: selectInvoiceSchema }) => {
         <CornerUpLeft size="16" />
         Go Back
       </Button>
-      <div className="fixed left-1/2 -translate-x-1/2 max-h-[90vh] max-w-xl p-6 rounded-xl bg-black border-success-400 overflow-auto">
-        <div className="flex justify-center mb-8">
+      <div className="fixed left-1/2 -translate-x-1/2 max-h-[90vh] max-w-xl w-full p-6 rounded-xl bg-black border-success-400 overflow-auto">
+        <div className="flex justify-center mb-2">
           <QRCode
             size={300}
             bgColor="bg-primary-900"
@@ -115,9 +113,16 @@ export const Invoice = (props: { invoice: selectInvoiceSchema }) => {
             eyeRadius={50}
             value={`https://metamask.app.link/send/${props.invoice.payerWallet}@05/transfer?address=${props.invoice.wallet}&uint256=${formatUnits(BigInt(props.invoice.amountDue), 6)}`} />
         </div>
+        <div className="text-success-400 mb-5 flex flex-col items-center gap-2">
+          <div className="flex items-center gap-3">
+            <p className="text-sm">{props.invoice.wallet}</p>
+            <Copy className="cursor-pointer" size={16} onClick={async () => await navigator.clipboard.writeText(props.invoice.wallet)}/>
+          </div>
+          <div className="text-sm">{props.invoice?.amountDue} {props.invoice.currency}</div>
+        </div>
         <>
           {list.map(i => {
-            return <Item key={Math.random()} title={i.name} value={i.value} />
+            return <Item key={Math.random()} title={i.name} value={i.value}/>
           })}
         </>
         <div className="flex items-start justify-between mt-8">
@@ -135,7 +140,6 @@ export const Invoice = (props: { invoice: selectInvoiceSchema }) => {
 export const Web3Connect = () => {
   const account = useAccount()
   const balances = useGetBalances({ address: account.address });
-  console.log("000",balances.data);
 
   return (
     <div>

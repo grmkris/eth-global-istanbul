@@ -68,7 +68,7 @@ export const Layout = () => {
           </div>
         </div>
 
-        <div className="mx-4 py-6 pl-72">
+        <div className="mx-6 py-6 pl-72">
           <WalletInfoBanner/>
           <main className="py-10">
             <Outlet/>
