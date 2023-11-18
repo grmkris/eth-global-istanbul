@@ -100,12 +100,14 @@ const provider = new Web3Provider(window.ethereum)
 const signer = provider.getSigner()
 
 const quoteRequest = {
-    sellToken: '0x91056D4A53E1faa1A84306D4deAEc71085394bC8', // COW goerli - 18 decimals
-    buyToken: '0x07865c6E87B9F70255377e024ace6630C1Eaa37F', // USDC goerli - 6 decimals
+    sellToken: '0x07865c6E87B9F70255377e024ace6630C1Eaa37F', // USDC goerli - 6 decimals
+    buyToken: '0x91056D4A53E1faa1A84306D4deAEc71085394bC8', // COW goerli - 18 decimals
     from: account,
     receiver: account,
-    buyAmountAfterFee: (10000 * 10 ** 6).toString(), // 10000 USDC
+    buyAmountAfterFee: (1 * 10 ** 18).toString(), // 1 COW
     kind: OrderQuoteSideKindBuy.BUY,
+    appData: '{"appCode":"dStripe","metadata":{"hooks":{"version":"0.1.0"}},"version":"0.10.0"}',
+    appDataHash: "0x0629b57f996d59b7a06b041e712d9f55033ce042795a08513b5a0aa9e8355966",
 }
 
 const orderBookApi = new OrderBookApi({ chainId: SupportedChainId.GOERLI })
@@ -133,10 +135,9 @@ export const CoWpoc = () => {
                 sellAmount: quote.sellAmount,
                 buyAmount: quote.buyAmount,
                 validTo: quote.validTo,
-                appData: quote.appData,
+                appData: quoteRequest.appDataHash,
                 feeAmount: quote.feeAmount,
                 partiallyFillable: quote.partiallyFillable,
-
             }
             const orderSigningResult = await OrderSigningUtils.signOrder(
                 usignedOrder,
@@ -160,7 +161,10 @@ export const CoWpoc = () => {
                 partiallyFillable: quote.partiallyFillable,
                 signingScheme: SigningScheme.EIP712,
                 signature: orderSigningResult.signature,
-                appData: "0x0629b57f996d59b7a06b041e712d9f55033ce042795a08513b5a0aa9e8355966" // {"appCode":"dStripe","metadata":{"hooks":{"version":"0.1.0"}},"version":"0.10.0"}
+                appData: quoteRequest.appData,
+                appDataHash: quoteRequest.appDataHash,
+                from: quoteRequest.from,
+                receiver: quoteRequest.receiver
             }
             console.log("Order", orderCreation)
             const orderId = await orderBookApi.sendOrder(orderCreation);
