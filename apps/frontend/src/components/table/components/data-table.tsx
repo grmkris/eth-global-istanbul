@@ -71,7 +71,7 @@ export function DataTable<TData>({
 
   console.log("DataTable", { filterableCols });
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 max-w-[80vw] mx-auto overflow-auto">
       <DataTableToolbar table={table} filterableCols={filterableCols} />
       <div className="rounded-md border">
         <Table>

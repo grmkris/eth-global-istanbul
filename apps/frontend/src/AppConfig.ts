@@ -22,9 +22,6 @@ export const generateAppConfig = (props: { rootRoute: RootRoute }) => {
   const invoiceRoute = createEntityRoute({
     id: "invoices",
     selectSchema: selectInvoiceSchema.omit({
-      wallet: true,
-      description: true,
-      payerWallet: true,
       updatedAt: true,
     }),
     insertSchema: insertInvoiceSchema.omit({

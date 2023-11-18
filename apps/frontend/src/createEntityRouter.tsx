@@ -171,7 +171,7 @@ export function generateEntityRouter<
           <Button className="mb-4 ml-4 text-success-400" variant="dark">
             <Link to={`/${entityRoute.id}/create`}>Add {entityRoute.id}</Link>
           </Button>
-          <div className="flex flex-col items-center justify-center bg-primary-900 p-4 text-gray-400">
+          <div className="flex flex-col items-center justify-center bg-primary-900 py-4 text-gray-400">
             <DataTable
               data={itemsQuery.data ?? []}
               columns={columns}

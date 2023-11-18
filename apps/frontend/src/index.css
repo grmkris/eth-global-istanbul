@@ -84,6 +84,21 @@
   }
 }
 
+*::-webkit-scrollbar {
+  width: 0px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 50px;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: transparent;
+  border-radius: 14px;
+  border: 8px solid #000000;
+}
+
 @layer base {
   * {
     @apply border-border;

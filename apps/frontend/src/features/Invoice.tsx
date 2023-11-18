@@ -1,20 +1,20 @@
 import { selectInvoiceSchema } from "backend/src/db/invoices.ts";
 import { QRCode } from 'react-qrcode-logo';
-import {Address, formatUnits} from 'viem'
-import {useQuery} from "@tanstack/react-query";
-import {ENABLED_TOKENS_GOERLI, getWalletBalance} from "@/features/balance-check.ts";
-import {useAccount} from "wagmi";
-import {Button} from "@/components/ui/button.tsx";
-import {CornerUpLeft} from "lucide-react";
-import {useRouter} from "@tanstack/react-router";
+import { Address, formatUnits} from 'viem'
+import { useQuery } from "@tanstack/react-query";
+import { ENABLED_TOKENS_GOERLI, getWalletBalance } from "@/features/balance-check.ts";
+import { useAccount } from "wagmi";
+import { Button } from "@/components/ui/button.tsx";
+import { CornerUpLeft } from "lucide-react";
+import { useRouter } from "@tanstack/react-router";
 
 function ConnectButton() {
     return <w3m-button/>
 }
 
-export const Item = (props: {title: string, value: string | number, key: string | number}) => {
+export const Item = (props: {title: string, value: string | number, key: string | number, className?: string}) => {
     return (
-        <div className="flex items-center">
+        <div className={`flex items-center ${props.className}`}>
             <h6 className="text-success-400 text-base min-w-[110px]">{props.title}:</h6>
             <p className="text-base text-success-400 font-bold">{props.value}</p>
         </div>
@@ -90,7 +90,7 @@ export const useGetBalances = (props: {
             if (!props.address) return;
             const balances = ENABLED_TOKENS_GOERLI.map(async (token) => {
                 if (!props.address) return;
-                const balance = await getWalletBalance({wallet: props.address, erc20: token.address});
+                const balance = await getWalletBalance({wallet: props.address, erc20: token.address as Address});
                 console.log(balance);
                 return {
                     token,
