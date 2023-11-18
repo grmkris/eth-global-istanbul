@@ -1,15 +1,18 @@
-# use the official Bun image
-FROM oven/bun:1 as base
+# Use an updated base image with the correct Node.js version
+FROM some-image-with-node-16-or-higher as base
 WORKDIR /usr/src/app
 
-# Install Node.js and npm
-USER root
-RUN apt-get update && apt-get install -y nodejs npm
-USER bun
+# Optionally install Node.js and npm if the base image doesn't have them
+# USER root
+# RUN apt-get update && apt-get install -y nodejs npm
+# USER bun
 
-# install root dependencies
+# Install root dependencies
+# Make sure the user has permission to create directories
 COPY package.json package-lock.json ./
+USER root
 RUN npm install --frozen-lockfile
+USER bun
 
 COPY . .
 
