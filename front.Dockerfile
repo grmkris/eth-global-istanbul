@@ -12,11 +12,8 @@ WORKDIR /usr/src/app
 
 # Install root dependencies
 # Make sure the user has permission to create directories
-COPY package.json package-lock.json ./
-USER root
-RUN npm install --frozen-lockfile
-
 COPY . .
+RUN npm install
 
 # Final stage
 FROM base AS release
