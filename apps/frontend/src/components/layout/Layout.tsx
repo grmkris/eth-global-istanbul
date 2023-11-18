@@ -14,7 +14,7 @@ export const Layout = () => {
   const router = useRouter();
   // const { ownerAddress } = useAccountAbstraction();
 
-  if ( router.state.location.pathname === "/" || router.state.location.pathname.includes("/invoice/") ) {
+  if ( router.state.location.pathname === "/" || router.state.location.pathname.includes("/invoice/") || router.state.location.pathname.includes("/invoice-paid/")) {
     return <Outlet/>;
   }
 
