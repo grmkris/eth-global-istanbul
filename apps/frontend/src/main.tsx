@@ -27,19 +27,6 @@ const indexRootRoute = new Route({
   getParentRoute: () => rootRoute,
   path: "/",
   component: () => {
-    return (
-        <>
-          <h1>Home</h1>
-        </>
-    );
-  },
-});
-
-// landing page route
-const landingRoute = new Route({
-  getParentRoute: () => rootRoute,
-  path: "/landing",
-  component: () => {
     return <Landing />;
   },
 });
@@ -68,7 +55,6 @@ const invoiceDetailsRoute = new Route({
 
 // Create the route tree using your root and dynamically generated entity routes
 const routeTree = rootRoute.addChildren([
-  landingRoute,
   indexRootRoute,
   invoiceDetailsRoute,
   paymentRoute,
