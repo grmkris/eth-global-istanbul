@@ -138,7 +138,8 @@ const AccountAbstractionProvider = ({
           uxMode: "popup",
           whiteLabel: {
             name: "OpenPayment",
-          }
+          },
+          network: 'testnet'
         },
       });
 
